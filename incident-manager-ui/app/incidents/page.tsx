@@ -8,6 +8,7 @@ import { IncidentFilters } from '@/components/incidents/IncidentFilters';
 import { IncidentForm } from '@/components/incidents/IncidentForm';
 import { getIncidents, deleteIncident } from '@/lib/api';
 import { Incident, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import PageTitle from '@/components/layout/PageTitle';
 
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -67,13 +68,10 @@ export default function IncidentsPage() {
           onCreateClick={() => setIsFormOpen(true)}
         />
         <main className="flex-1 overflow-auto p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-foreground">Incidents</h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Monitor and manage security incidents across all clients
-            </p>
-          </div>
-
+          <PageTitle
+            title="Incidents"
+            subtitle="Monitor and manage security incidents across all clients"
+          />
           <IncidentFilters
             severity={severity}
             status={status}
