@@ -9,11 +9,7 @@ export const metadata: Metadata = {
   description: 'Cybersecurity Incident Response Dashboard',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>{children}</body>

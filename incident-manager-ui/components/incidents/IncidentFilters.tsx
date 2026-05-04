@@ -44,10 +44,7 @@ export function IncidentFilters({
         </SelectContent>
       </Select>
 
-      <Select
-        value={status}
-        onValueChange={(v) => onStatusChange(v as IncidentStatus | 'ALL')}
-      >
+      <Select value={status} onValueChange={(v) => onStatusChange(v as IncidentStatus | 'ALL')}>
         <SelectTrigger className="w-44 bg-card">
           <SelectValue placeholder="All Statuses" />
         </SelectTrigger>

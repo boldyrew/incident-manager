@@ -40,12 +40,7 @@ function formatDate(iso: string) {
   });
 }
 
-export function IncidentsTable({
-  incidents,
-  loading,
-  onEdit,
-  onDelete,
-}: IncidentsTableProps) {
+export function IncidentsTable({ incidents, loading, onEdit, onDelete }: IncidentsTableProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   return (
@@ -77,10 +72,7 @@ export function IncidentsTable({
               ))
             ) : incidents.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center py-16 text-muted-foreground"
-                >
+                <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
                   No incidents found
                 </TableCell>
               </TableRow>
@@ -99,14 +91,10 @@ export function IncidentsTable({
                   <TableCell>
                     <StatusBadge status={incident.status} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {incident.client}
-                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{incident.client}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {incident.assignedTo ?? (
-                      <span className="italic text-muted-foreground/50">
-                        Unassigned
-                      </span>
+                      <span className="italic text-muted-foreground/50">Unassigned</span>
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
@@ -146,8 +134,7 @@ export function IncidentsTable({
           <DialogHeader>
             <DialogTitle>Delete Incident</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. The incident will be permanently
-              removed.
+              This action cannot be undone. The incident will be permanently removed.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

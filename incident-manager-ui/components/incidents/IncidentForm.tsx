@@ -49,12 +49,7 @@ const blank: CreateIncidentPayload = {
   detectedAt: '',
 };
 
-export function IncidentForm({
-  open,
-  incident,
-  onClose,
-  onSuccess,
-}: IncidentFormProps) {
+export function IncidentForm({ open, incident, onClose, onSuccess }: IncidentFormProps) {
   const [form, setForm] = useState<CreateIncidentPayload>({
     ...blank,
     detectedAt: defaultDetectedAt(),
@@ -81,8 +76,7 @@ export function IncidentForm({
     }
   }, [incident, open]);
 
-  const set = (patch: Partial<CreateIncidentPayload>) =>
-    setForm((prev) => ({ ...prev, ...patch }));
+  const set = (patch: Partial<CreateIncidentPayload>) => setForm((prev) => ({ ...prev, ...patch }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,9 +108,7 @@ export function IncidentForm({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {incident ? 'Edit Incident' : 'Create Incident'}
-          </DialogTitle>
+          <DialogTitle>{incident ? 'Edit Incident' : 'Create Incident'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
@@ -147,9 +139,7 @@ export function IncidentForm({
               <Label>Severity *</Label>
               <Select
                 value={form.severity}
-                onValueChange={(v) =>
-                  set({ severity: v as CreateIncidentPayload['severity'] })
-                }
+                onValueChange={(v) => set({ severity: v as CreateIncidentPayload['severity'] })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -167,9 +157,7 @@ export function IncidentForm({
               <Label>Status *</Label>
               <Select
                 value={form.status}
-                onValueChange={(v) =>
-                  set({ status: v as CreateIncidentPayload['status'] })
-                }
+                onValueChange={(v) => set({ status: v as CreateIncidentPayload['status'] })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -223,11 +211,7 @@ export function IncidentForm({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading
-                ? 'Saving...'
-                : incident
-                  ? 'Save Changes'
-                  : 'Create Incident'}
+              {loading ? 'Saving...' : incident ? 'Save Changes' : 'Create Incident'}
             </Button>
           </DialogFooter>
         </form>

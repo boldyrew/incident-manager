@@ -1,8 +1,4 @@
-import {
-  Incident,
-  CreateIncidentPayload,
-  UpdateIncidentPayload,
-} from '@/types/incident';
+import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -26,9 +22,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
-export async function getIncidents(
-  params: GetIncidentsParams = {},
-): Promise<Incident[]> {
+export async function getIncidents(params: GetIncidentsParams = {}): Promise<Incident[]> {
   const q = new URLSearchParams();
   if (params.severity) q.set('severity', params.severity);
   if (params.status) q.set('status', params.status);
@@ -41,19 +35,14 @@ export async function getIncident(id: string): Promise<Incident> {
   return request<Incident>(`/incidents/${id}`);
 }
 
-export async function createIncident(
-  data: CreateIncidentPayload,
-): Promise<Incident> {
+export async function createIncident(data: CreateIncidentPayload): Promise<Incident> {
   return request<Incident>('/incidents', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export async function updateIncident(
-  id: string,
-  data: UpdateIncidentPayload,
-): Promise<Incident> {
+export async function updateIncident(id: string, data: UpdateIncidentPayload): Promise<Incident> {
   return request<Incident>(`/incidents/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),

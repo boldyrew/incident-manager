@@ -13,8 +13,18 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, disabled: true },
-  { href: '/incidents', label: 'Incidents', icon: AlertTriangle, disabled: false },
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    disabled: true,
+  },
+  {
+    href: '/incidents',
+    label: 'Incidents',
+    icon: AlertTriangle,
+    disabled: false,
+  },
   { href: '/reports', label: 'Reports', icon: FileText, disabled: true },
   { href: '/clients', label: 'Clients', icon: Building2, disabled: true },
   { href: '/settings', label: 'Settings', icon: Settings, disabled: true },
@@ -30,19 +40,14 @@ export function Sidebar() {
           <div className="p-1.5 bg-primary/20 rounded-md">
             <Shield className="h-5 w-5 text-primary" />
           </div>
-          <span className="text-lg font-bold text-foreground tracking-tight">
-            SecureOps
-          </span>
+          <span className="text-lg font-bold text-foreground tracking-tight">SecureOps</span>
         </div>
-        <p className="text-xs text-muted-foreground mt-1.5">
-          Incident Response Dashboard
-        </p>
+        <p className="text-xs text-muted-foreground mt-1.5">Incident Response Dashboard</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon, disabled }) => {
-          const isActive =
-            pathname === href || pathname.startsWith(href + '/');
+          const isActive = pathname === href || pathname.startsWith(href + '/');
           return (
             <Link
               key={href}
@@ -74,9 +79,7 @@ export function Sidebar() {
             <span className="text-xs font-semibold text-primary">SA</span>
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              Security Analyst
-            </p>
+            <p className="text-sm font-medium text-foreground truncate">Security Analyst</p>
             <p className="text-xs text-muted-foreground truncate">SecureOps</p>
           </div>
         </div>
