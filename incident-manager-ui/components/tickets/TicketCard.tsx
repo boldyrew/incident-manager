@@ -37,18 +37,18 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             <span className="text-gray-400">Assigned To:</span>
             <div className="flex items-center space-x-2">
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs">
-                {ticket.assignedTo
+                {ticket.assignee
                   .split(' ')
                   .map((n) => n[0])
                   .join('')}
               </div>
-              <span>{ticket.assignedTo}</span>
+              <span>{ticket.assignee}</span>
             </div>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-400">Linked Incident:</span>
-            <span className="text-blue-400">{ticket.linkedIncident}</span>
+            <span className="text-blue-400">{/* {ticket.linkedIncident} */}</span>
           </div>
 
           <div className="flex items-center justify-between text-sm">

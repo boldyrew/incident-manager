@@ -59,33 +59,25 @@ export default function IncidentsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Topbar
-          search={search}
-          onSearchChange={setSearch}
-          onCreateClick={() => setIsFormOpen(true)}
+    <>
+      <div>
+        <PageTitle
+          title="Incidents"
+          subtitle="Monitor and manage security incidents across all clients"
         />
-        <main className="flex-1 overflow-auto p-6">
-          <PageTitle
-            title="Incidents"
-            subtitle="Monitor and manage security incidents across all clients"
-          />
-          <IncidentFilters
-            severity={severity}
-            status={status}
-            onSeverityChange={setSeverity}
-            onStatusChange={setStatus}
-          />
+        <IncidentFilters
+          severity={severity}
+          status={status}
+          onSeverityChange={setSeverity}
+          onStatusChange={setStatus}
+        />
 
-          <IncidentsTable
-            incidents={incidents}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </main>
+        <IncidentsTable
+          incidents={incidents}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
 
       <IncidentForm
@@ -97,6 +89,6 @@ export default function IncidentsPage() {
           fetchIncidents();
         }}
       />
-    </div>
+    </>
   );
 }

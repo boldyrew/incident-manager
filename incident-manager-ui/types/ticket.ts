@@ -6,7 +6,26 @@ export interface TicketBase {
   title: string;
   severity: TicketSeverity;
   status: TicketStatus;
-  assignedTo: string;
-  linkedIncident: string;
+  assignee: string;
+  // linkedIncident: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface TicketDetailModel extends TicketBase {
+  description: string;
+
+  // linkedIncidentTitle: string;
+  // linkedIncidentSeverity: TicketSeverity;
+}
+
+export type TicketActivityType = 'created' | 'assigned' | 'status_change' | 'comment';
+
+export interface TicketActivityItem {
+  id: number;
+  type: TicketActivityType;
+  user: string;
+  action: string;
+  timestamp: string;
+  content?: string;
 }
