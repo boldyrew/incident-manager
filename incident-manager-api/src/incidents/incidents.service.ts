@@ -14,11 +14,15 @@ interface FindAllFilters {
 export class IncidentsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getNewIncidentCode() {
+    const seq = await this.prisma.$queryRaw`SELECT nextval('incident_code_seq')`;
+    return `INC-${String(seq[0].nextval).padStart(4, '0')}`;
+  }
+  
   async create(dto: CreateIncidentDto) {
-    const count = await this.prisma.incident.count();
-    const incidentId = `INC-${String(count + 1).padStart(4, '0')}`;
+    const incidentId = await this.getNewIncidentCode();
 
-    return this.prisma.incident.create({
+    return await this.prisma.incident.create({
       data: {
         ...dto,
         incidentId,

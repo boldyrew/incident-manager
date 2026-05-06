@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-import { IncidentsTable } from '@/components/incidents/IncidentsTable';
 import { IncidentFilters } from '@/components/incidents/IncidentFilters';
 import { IncidentForm } from '@/components/incidents/IncidentForm';
-import { getIncidents, deleteIncident } from '@/lib/api';
-import { Incident, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import { IncidentsTable } from '@/components/incidents/IncidentsTable';
 import PageTitle from '@/components/layout/PageTitle';
+import { Button } from '@/components/ui/button';
+import { deleteIncident, getIncidents } from '@/lib/api';
+import { Incident, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import { Plus } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -64,6 +64,12 @@ export default function IncidentsPage() {
         <PageTitle
           title="Incidents"
           subtitle="Monitor and manage security incidents across all clients"
+          rightPanel={
+            <Button onClick={() => setIsFormOpen(true)} className="ml-4">
+              <Plus className="h-4 w-4" />
+              Create Incident
+            </Button>
+          }
         />
         <IncidentFilters
           severity={severity}
