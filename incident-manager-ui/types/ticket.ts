@@ -1,13 +1,13 @@
-export type TicketSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
 export interface TicketBase {
-  id: string;
+  code: string;
   title: string;
-  severity: TicketSeverity;
+  priority: TicketPriority;
   status: TicketStatus;
-  assignee: string;
-  // linkedIncident: string;
+  assignedTo?: string;
+  // incidentId: string;
   createdAt: string;
   updatedAt: string;
 }

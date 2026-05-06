@@ -1,10 +1,12 @@
-import { PrismaClient, IncidentSeverity, IncidentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  IncidentSeverity,
+  IncidentStatus,
+} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
-  await prisma.incident.deleteMany();
-
+async function seedIncidents() {
   const incidents = [
     {
       incidentId: 'INC-0001',
@@ -15,7 +17,7 @@ async function main() {
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
       assignedTo: 'Sarah Chen',
-      detectedAt: new Date('2024-01-15T09:23:00Z'),
+      detectedAt: new Date('2024-01-10T09:23:00Z'),
     },
     {
       incidentId: 'INC-0002',
@@ -26,7 +28,7 @@ async function main() {
       status: IncidentStatus.OPEN,
       client: 'Meridian Healthcare',
       assignedTo: 'James Walker',
-      detectedAt: new Date('2024-01-15T11:45:00Z'),
+      detectedAt: new Date('2024-01-11T11:45:00Z'),
     },
     {
       incidentId: 'INC-0003',
@@ -37,7 +39,7 @@ async function main() {
       status: IncidentStatus.IN_PROGRESS,
       client: 'GlobalTech Solutions',
       assignedTo: 'Maria Rodriguez',
-      detectedAt: new Date('2024-01-14T14:30:00Z'),
+      detectedAt: new Date('2024-01-12T14:30:00Z'),
     },
     {
       incidentId: 'INC-0004',
@@ -48,7 +50,7 @@ async function main() {
       status: IncidentStatus.OPEN,
       client: 'Nexus Retail Corp',
       assignedTo: null,
-      detectedAt: new Date('2024-01-15T08:15:00Z'),
+      detectedAt: new Date('2024-01-13T08:15:00Z'),
     },
     {
       incidentId: 'INC-0005',
@@ -59,7 +61,7 @@ async function main() {
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
       assignedTo: 'David Kim',
-      detectedAt: new Date('2024-01-13T16:55:00Z'),
+      detectedAt: new Date('2024-01-14T16:55:00Z'),
     },
     {
       incidentId: 'INC-0006',
@@ -70,7 +72,7 @@ async function main() {
       status: IncidentStatus.RESOLVED,
       client: 'Meridian Healthcare',
       assignedTo: 'Sarah Chen',
-      detectedAt: new Date('2024-01-12T10:20:00Z'),
+      detectedAt: new Date('2024-01-15T10:20:00Z'),
     },
     {
       incidentId: 'INC-0007',
@@ -81,15 +83,131 @@ async function main() {
       status: IncidentStatus.CLOSED,
       client: 'GlobalTech Solutions',
       assignedTo: 'James Walker',
-      detectedAt: new Date('2024-01-10T13:40:00Z'),
+      detectedAt: new Date('2024-01-16T13:40:00Z'),
     },
   ];
 
+  const createdIncidents = [];
+
   for (const incident of incidents) {
-    await prisma.incident.create({ data: incident });
+    const createdIncident = await prisma.incident.create({ data: incident });
+    createdIncidents.push(createdIncident);
   }
 
   console.log(`Seeded ${incidents.length} incidents successfully`);
+
+  return createdIncidents;
+}
+
+async function seedTickets(incidentMap: Map<string, string>) {
+  const ticketClient = (prisma as any).ticket;
+
+  const tickets = [
+    {
+      ticketId: 'TKT-0001',
+      title: 'Block Suspicious Source IP',
+      description:
+        'Add perimeter firewall rule to block source IP 192.168.45.221 and related subnet for brute-force campaign containment.',
+      priority: 'HIGH',
+      status: 'IN_PROGRESS',
+      assignedTo: 'Network Team',
+      incidentCode: 'INC-0001',
+    },
+    {
+      ticketId: 'TKT-0002',
+      title: 'Reimage Infected Endpoint WS-042',
+      description:
+        'Perform full disk wipe and controlled reimage of compromised workstation WS-042, then validate endpoint hardening baseline.',
+      priority: 'CRITICAL',
+      status: 'OPEN',
+      assignedTo: 'Endpoint Team',
+      incidentCode: 'INC-0002',
+    },
+    {
+      ticketId: 'TKT-0003',
+      title: 'Reset Compromised User Credentials',
+      description:
+        'Force password reset and revoke active sessions for finance users impacted by phishing credential harvest.',
+      priority: 'HIGH',
+      status: 'IN_PROGRESS',
+      assignedTo: 'Identity Team',
+      incidentCode: 'INC-0003',
+    },
+    {
+      ticketId: 'TKT-0004',
+      title: 'Review Egress Rules for Exfiltration Channel',
+      description:
+        'Audit and tighten outbound ACLs and proxy policies to prevent traffic to suspicious domain patterns.',
+      priority: 'CRITICAL',
+      status: 'OPEN',
+      assignedTo: 'SOC Team',
+      incidentCode: 'INC-0004',
+    },
+    {
+      ticketId: 'TKT-0005',
+      title: 'Patch Affected Linux Hosts',
+      description:
+        'Apply glibc updates and validate mitigation for CVE-2023-4911 on all production Linux assets.',
+      priority: 'CRITICAL',
+      status: 'IN_PROGRESS',
+      assignedTo: 'Platform Team',
+      incidentCode: 'INC-0005',
+    },
+    {
+      ticketId: 'TKT-0006',
+      title: 'Validate Ransomware IOC Coverage',
+      description:
+        'Confirm EDR signatures and SIEM detections include latest LockBit indicators across all client environments.',
+      priority: 'MEDIUM',
+      status: 'RESOLVED',
+      assignedTo: 'Threat Intel',
+      incidentCode: 'INC-0006',
+    },
+    {
+      ticketId: 'TKT-0007',
+      title: 'Harden API Token Rotation Policy',
+      description:
+        'Enforce stricter JWT expiration and automatic rotation to reduce replay attempts with stale tokens.',
+      priority: 'LOW',
+      status: 'CLOSED',
+      assignedTo: 'AppSec Team',
+      incidentCode: 'INC-0007',
+    },
+  ];
+
+  for (const ticket of tickets) {
+    const incidentId = incidentMap.get(ticket.incidentCode);
+
+    if (!incidentId) {
+      throw new Error(`Missing incident mapping for ${ticket.incidentCode}`);
+    }
+
+    await ticketClient.create({
+      data: {
+        ticketId: ticket.ticketId,
+        title: ticket.title,
+        description: ticket.description,
+        priority: ticket.priority,
+        status: ticket.status,
+        assignedTo: ticket.assignedTo,
+        incidentId,
+      },
+    });
+  }
+
+  console.log(`Seeded ${tickets.length} tickets successfully`);
+}
+
+async function main() {
+  const ticketClient = (prisma as any).ticket;
+
+  await ticketClient.deleteMany();
+  await prisma.incident.deleteMany();
+
+  const incidents = await seedIncidents();
+  const incidentMap = new Map(incidents.map((incident) => [incident.incidentId, incident.id]));
+
+  await seedTickets(incidentMap);
 }
 
 main()

@@ -1,8 +1,8 @@
 import type { BadgeVariant } from '@/components/ui/badge';
-import { TicketSeverity, TicketStatus } from '@/types/ticket';
+import { TicketPriority, TicketStatus } from '@/types/ticket';
 
-export function getTicketSeverityBadgeVariant(severity: TicketSeverity): BadgeVariant {
-  switch (severity) {
+export function getTicketPriorityBadgeVariant(priority: TicketPriority): BadgeVariant {
+  switch (priority) {
     case 'CRITICAL':
       return 'critical';
     case 'HIGH':

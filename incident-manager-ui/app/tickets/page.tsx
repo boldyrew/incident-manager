@@ -2,7 +2,9 @@
 
 import PageTitle from '@/components/layout/PageTitle';
 import TicketCard from '@/components/tickets/TicketCard';
+import { getTickets } from '@/lib/api';
 import { TicketBase } from '@/types/ticket';
+import { useCallback, useEffect, useState } from 'react';
 
 const tickets: TicketBase[] = [
   {
@@ -68,6 +70,32 @@ const tickets: TicketBase[] = [
 ];
 
 export default function TicketsPage() {
+
+  const [tickets, setTickets] = useState<TicketBase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+
+
+  const fetchTickets = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getTickets();
+      setTickets(data);
+    } catch (err) {
+      console.error('Failed to fetch tickets:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <PageTitle title="Tickets" subtitle="Remediation tasks linked to incidents" />

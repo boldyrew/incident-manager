@@ -17,8 +17,27 @@ model Incident {
   client      String
   assignedTo  String?
   detectedAt  DateTime
+  tickets     Ticket[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  
+  @@map("incidents")
+}
+
+model Ticket {
+  id          String         @id @default(uuid())
+  ticketId    String         @unique
+  title       String
+  description String?
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  assignedTo  String?
+  incidentId  String
+  incident    Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("tickets")
 }
 
 enum IncidentSeverity {
@@ -34,3 +53,18 @@ enum IncidentStatus {
   RESOLVED
   CLOSED
 }
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+

@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { SeverityBadge } from './SeverityBadge';
 import { StatusBadge } from './StatusBadge';
+import { formatDate } from '@/lib/utils';
 import { Incident } from '@/types/incident';
 
 interface IncidentsTableProps {
@@ -28,16 +29,6 @@ interface IncidentsTableProps {
   loading: boolean;
   onEdit: (incident: Incident) => void;
   onDelete: (id: string) => void;
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 export function IncidentsTable({ incidents, loading, onEdit, onDelete }: IncidentsTableProps) {
