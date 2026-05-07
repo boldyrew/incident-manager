@@ -20,12 +20,12 @@ export class IncidentsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateIncidentDto): Promise<Incident> {
-    const incidentId = await this.getNewIncidentCode();
+    const code = await this.getNewIncidentCode();
 
     const incident = await this.prisma.incident.create({
       data: {
         ...dto,
-        incidentId,
+        code,
         detectedAt: new Date(dto.detectedAt),
       },
     });
@@ -44,7 +44,7 @@ export class IncidentsRepository {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
             { client: { contains: search, mode: 'insensitive' } },
-            { incidentId: { contains: search, mode: 'insensitive' } },
+            { code: { contains: search, mode: 'insensitive' } },
           ],
         }),
       },
@@ -85,7 +85,7 @@ export class IncidentsRepository {
   private mapIncident(incident: PrismaIncident): Incident {
     return {
       id: incident.id,
-      incidentId: incident.incidentId,
+      code: incident.code,
       title: incident.title,
       description: incident.description,
       severity: incident.severity,

@@ -13,10 +13,13 @@ CREATE TYPE "TicketStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED')
 -- create sequence for incidents
 CREATE SEQUENCE incident_code_seq START 8;
 
+-- create sequence for tickets
+CREATE SEQUENCE ticket_code_seq START 8;
+
 -- CreateTable
 CREATE TABLE "incidents" (
     "id" TEXT NOT NULL,
-    "incidentId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "severity" "IncidentSeverity" NOT NULL,
@@ -30,19 +33,16 @@ CREATE TABLE "incidents" (
     CONSTRAINT "incidents_pkey" PRIMARY KEY ("id")
 );
 
--- create sequence for tickets
-CREATE SEQUENCE ticket_code_seq START 8;
-
 -- CreateTable
 CREATE TABLE "tickets" (
     "id" TEXT NOT NULL,
-    "ticketId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "priority" "TicketPriority" NOT NULL DEFAULT 'MEDIUM',
     "status" "TicketStatus" NOT NULL DEFAULT 'OPEN',
     "assignedTo" TEXT,
-    "incidentId" TEXT NOT NULL,
+    "incidentId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -50,10 +50,10 @@ CREATE TABLE "tickets" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "incidents_incidentId_key" ON "incidents"("incidentId");
+CREATE UNIQUE INDEX "incidents_code_key" ON "incidents"("code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tickets_ticketId_key" ON "tickets"("ticketId");
+CREATE UNIQUE INDEX "tickets_code_key" ON "tickets"("code");
 
 -- AddForeignKey
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_incidentId_fkey" FOREIGN KEY ("incidentId") REFERENCES "incidents"("id") ON DELETE CASCADE ON UPDATE CASCADE;

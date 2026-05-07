@@ -71,7 +71,7 @@ export function IncidentsTable({ incidents, loading, onEdit, onDelete }: Inciden
               incidents.map((incident) => (
                 <TableRow key={incident.id} className="border-b border-border">
                   <TableCell className="font-mono text-xs text-muted-foreground">
-                    {incident.incidentId}
+                    {incident.code}
                   </TableCell>
                   <TableCell className="font-medium text-foreground max-w-xs">
                     <span className="line-clamp-1">{incident.title}</span>

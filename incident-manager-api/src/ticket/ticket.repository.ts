@@ -6,7 +6,7 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketBase, TicketDetailModel } from './entities/ticket.entity';
 
 const ticketBaseSelect = {
-  ticketId: true,
+  code: true,
   title: true,
   priority: true,
   status: true,
@@ -34,9 +34,9 @@ export class TicketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateTicketDto): Promise<TicketBase> {
-    const ticketId = await this.getNewTicketCode();
+    const code = await this.getNewTicketCode();
     const createData: Prisma.TicketUncheckedCreateInput = {
-      ticketId,
+      code,
       title: dto.title,
       description: dto.description,
       priority: dto.priority,
@@ -63,7 +63,7 @@ export class TicketRepository {
 
   async findByCode(code: string): Promise<TicketDetailModel | null> {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { ticketId: code },
+      where: { code },
       select: ticketDetailSelect,
     });
     if (!ticket) return null;
@@ -72,7 +72,7 @@ export class TicketRepository {
 
   async update(code: string, dto: UpdateTicketDto): Promise<TicketBase> {
     const ticket = await this.prisma.ticket.update({
-      where: { ticketId: code },
+      where: { code },
       data: dto,
     });
 
@@ -93,7 +93,7 @@ export class TicketRepository {
 
   private mapTicketBase(ticket: TicketBaseRecord): TicketBase {
     return {
-      code: ticket.ticketId,
+      code: ticket.code,
       title: ticket.title,
       priority: ticket.priority,
       status: ticket.status,

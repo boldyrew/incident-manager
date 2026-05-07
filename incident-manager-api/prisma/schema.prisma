@@ -9,7 +9,7 @@ datasource db {
 
 model Incident {
   id          String           @id @default(uuid())
-  incidentId  String           @unique
+  code        String           @unique
   title       String
   description String?
   severity    IncidentSeverity
@@ -26,14 +26,14 @@ model Incident {
 
 model Ticket {
   id          String         @id @default(uuid())
-  ticketId    String         @unique
+  code        String         @unique
   title       String
   description String?
   priority    TicketPriority @default(MEDIUM)
   status      TicketStatus   @default(OPEN)
   assignedTo  String?
-  incidentId  String
-  incident    Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId  String?
+  incident    Incident?      @relation(fields: [incidentId], references: [id], onDelete: Cascade)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

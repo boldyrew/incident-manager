@@ -2,7 +2,7 @@ import { IncidentSeverity, IncidentStatus } from '@prisma/client';
 
 export interface Incident {
   id: string;
-  incidentId: string;
+  code: string;
   title: string;
   description: string | null;
   severity: IncidentSeverity;

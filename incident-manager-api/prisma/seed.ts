@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 async function seedIncidents() {
   const incidents = [
     {
-      incidentId: 'INC-0001',
+      code: 'INC-0001',
       title: 'Suspicious Login Attempts from Unknown IP',
       description:
         'Multiple failed login attempts detected from IP 192.168.45.221 targeting admin accounts. Brute force pattern identified with 347 attempts in 10 minutes.',
@@ -20,7 +20,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-10T09:23:00Z'),
     },
     {
-      incidentId: 'INC-0002',
+      code: 'INC-0002',
       title: 'Malware Detected on Endpoint',
       description:
         'Trojan.GenericKD malware detected on workstation WS-042. Endpoint isolated from network pending full investigation and remediation.',
@@ -31,7 +31,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-11T11:45:00Z'),
     },
     {
-      incidentId: 'INC-0003',
+      code: 'INC-0003',
       title: 'Phishing Email Campaign Targeting Finance Department',
       description:
         'Coordinated phishing campaign detected targeting 23 employees in the finance department. 3 users clicked malicious links leading to credential harvesting page.',
@@ -42,7 +42,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-12T14:30:00Z'),
     },
     {
-      incidentId: 'INC-0004',
+      code: 'INC-0004',
       title: 'Unusual Outbound Traffic Detected',
       description:
         'Anomalous outbound traffic to suspicious domain cdn-assets-update[.]net detected. Potential data exfiltration in progress — 2.3GB transferred over 4 hours.',
@@ -53,7 +53,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-13T08:15:00Z'),
     },
     {
-      incidentId: 'INC-0005',
+      code: 'INC-0005',
       title: 'Privilege Escalation Detected',
       description:
         'Unauthorized privilege escalation on server SRV-DB-01. User account "jsmith" gained root access exploiting CVE-2023-4911 (Looney Tunables glibc vulnerability).',
@@ -64,7 +64,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-14T16:55:00Z'),
     },
     {
-      incidentId: 'INC-0006',
+      code: 'INC-0006',
       title: 'Ransomware Attempt Blocked',
       description:
         'Endpoint protection successfully blocked ransomware execution attempt. Malicious payload (LockBit variant) quarantined. No encryption occurred.',
@@ -75,7 +75,7 @@ async function seedIncidents() {
       detectedAt: new Date('2024-01-15T10:20:00Z'),
     },
     {
-      incidentId: 'INC-0007',
+      code: 'INC-0007',
       title: 'Unauthorized API Access Attempt',
       description:
         'Multiple unauthorized API calls detected using expired JWT tokens. Rate limiting and IP block applied. No data was accessed.',
@@ -90,7 +90,16 @@ async function seedIncidents() {
   const createdIncidents = [];
 
   for (const incident of incidents) {
-    const createdIncident = await prisma.incident.create({ data: incident });
+    const createdIncident = await prisma.incident.create({ data: {
+      code: incident.code,
+      title: incident.title,
+      description: incident.description,
+      severity: incident.severity,
+      status: incident.status,
+      client: incident.client,
+      assignedTo: incident.assignedTo,
+      detectedAt: incident.detectedAt,
+    } });
     createdIncidents.push(createdIncident);
   }
 
@@ -104,7 +113,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
 
   const tickets = [
     {
-      ticketId: 'TKT-0001',
+      code: 'TKT-0001',
       title: 'Block Suspicious Source IP',
       description:
         'Add perimeter firewall rule to block source IP 192.168.45.221 and related subnet for brute-force campaign containment.',
@@ -114,7 +123,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0001',
     },
     {
-      ticketId: 'TKT-0002',
+      code: 'TKT-0002',
       title: 'Reimage Infected Endpoint WS-042',
       description:
         'Perform full disk wipe and controlled reimage of compromised workstation WS-042, then validate endpoint hardening baseline.',
@@ -124,7 +133,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0002',
     },
     {
-      ticketId: 'TKT-0003',
+      code: 'TKT-0003',
       title: 'Reset Compromised User Credentials',
       description:
         'Force password reset and revoke active sessions for finance users impacted by phishing credential harvest.',
@@ -134,7 +143,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0003',
     },
     {
-      ticketId: 'TKT-0004',
+      code: 'TKT-0004',
       title: 'Review Egress Rules for Exfiltration Channel',
       description:
         'Audit and tighten outbound ACLs and proxy policies to prevent traffic to suspicious domain patterns.',
@@ -144,7 +153,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0004',
     },
     {
-      ticketId: 'TKT-0005',
+      code: 'TKT-0005',
       title: 'Patch Affected Linux Hosts',
       description:
         'Apply glibc updates and validate mitigation for CVE-2023-4911 on all production Linux assets.',
@@ -154,7 +163,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0005',
     },
     {
-      ticketId: 'TKT-0006',
+      code: 'TKT-0006',
       title: 'Validate Ransomware IOC Coverage',
       description:
         'Confirm EDR signatures and SIEM detections include latest LockBit indicators across all client environments.',
@@ -164,7 +173,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
       incidentCode: 'INC-0006',
     },
     {
-      ticketId: 'TKT-0007',
+      code: 'TKT-0007',
       title: 'Harden API Token Rotation Policy',
       description:
         'Enforce stricter JWT expiration and automatic rotation to reduce replay attempts with stale tokens.',
@@ -184,7 +193,7 @@ async function seedTickets(incidentMap: Map<string, string>) {
 
     await ticketClient.create({
       data: {
-        ticketId: ticket.ticketId,
+        code: ticket.code,
         title: ticket.title,
         description: ticket.description,
         priority: ticket.priority,
@@ -205,7 +214,7 @@ async function main() {
   await prisma.incident.deleteMany();
 
   const incidents = await seedIncidents();
-  const incidentMap = new Map(incidents.map((incident) => [incident.incidentId, incident.id]));
+  const incidentMap = new Map(incidents.map((incident) => [incident.code, incident.id]));
 
   await seedTickets(incidentMap);
 }

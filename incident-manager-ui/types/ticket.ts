@@ -7,16 +7,12 @@ export interface TicketBase {
   priority: TicketPriority;
   status: TicketStatus;
   assignedTo?: string;
-  // incidentId: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface TicketDetailModel extends TicketBase {
   description: string;
-
-  // linkedIncidentTitle: string;
-  // linkedIncidentSeverity: TicketSeverity;
 }
 
 export type TicketActivityType = 'created' | 'assigned' | 'status_change' | 'comment';
