@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Ticket as PrismaTicket } from '@prisma/client';
+import { Prisma, Ticket } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -10,7 +10,6 @@ const ticketBaseSelect = {
   title: true,
   priority: true,
   status: true,
-  assignedTo: true,
   incidentId: true,
   createdAt: true,
   updatedAt: true,
@@ -41,7 +40,7 @@ export class TicketRepository {
       description: dto.description,
       priority: dto.priority,
       status: dto.status,
-      assignedTo: dto.assignedTo,
+      // assignedTo: dto.assignedTo,
       incidentId: dto.incidentId,
     };
 
@@ -97,7 +96,6 @@ export class TicketRepository {
       title: ticket.title,
       priority: ticket.priority,
       status: ticket.status,
-      assignedTo: ticket.assignedTo,
       incidentId: ticket.incidentId,
       createdAt: ticket.createdAt,
       updatedAt: ticket.updatedAt,

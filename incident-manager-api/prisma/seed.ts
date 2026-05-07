@@ -97,7 +97,7 @@ async function seedIncidents() {
       severity: incident.severity,
       status: incident.status,
       client: incident.client,
-      assignedTo: incident.assignedTo,
+      // assignedTo: incident.assignedTo,
       detectedAt: incident.detectedAt,
     } });
     createdIncidents.push(createdIncident);
