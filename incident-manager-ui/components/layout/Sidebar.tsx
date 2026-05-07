@@ -9,6 +9,7 @@ import {
   FileText,
   Building2,
   Settings,
+  Ticket,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +24,12 @@ const navItems = [
     href: '/incidents',
     label: 'Incidents',
     icon: AlertTriangle,
+    disabled: false,
+  },
+  {
+    href: '/tickets',
+    label: 'Tickets',
+    icon: Ticket,
     disabled: false,
   },
   { href: '/reports', label: 'Reports', icon: FileText, disabled: true },

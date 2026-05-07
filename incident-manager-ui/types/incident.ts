@@ -3,7 +3,7 @@ export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
 export interface Incident {
   id: string;
-  incidentId: string;
+  code: string;
   title: string;
   description?: string;
   severity: IncidentSeverity;
