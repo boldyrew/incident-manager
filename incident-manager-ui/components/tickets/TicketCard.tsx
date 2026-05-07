@@ -5,6 +5,7 @@ import {
 } from '@/lib/ticketBadgeVariants';
 import { formatDate } from '@/lib/utils';
 import { TicketBase } from '@/types/ticket';
+import Link from 'next/link';
 
 export interface TicketCardProps {
   ticket: TicketBase;
@@ -26,13 +27,14 @@ export default function TicketCard({ ticket }: TicketCardProps) {
         </div>
       </div>
       <div>
-        <h4
-          className="mb-4 cursor-pointer hover:text-blue-400 transition-colors"
-          // onClick={() => handleOpenModal(ticket.id)}
-        >
-          {ticket.title}
-        </h4>
-
+        <Link href={`/tickets/${ticket.code}`}>
+          <h4
+            className="mb-4 cursor-pointer hover:text-blue-400 transition-colors"
+            // onClick={() => handleOpenModal(ticket.id)}
+          >
+            {ticket.title}
+          </h4>
+        </Link>
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-400">Assigned To:</span>

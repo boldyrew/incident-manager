@@ -7,9 +7,10 @@ import { TicketCommentForm } from '@/components/tickets/ticket-detail/TicketComm
 import { TicketDetailsCard } from '@/components/tickets/ticket-detail/TicketDetailsCard';
 import { TicketQuickStatsCard } from '@/components/tickets/ticket-detail/TicketQuickStatsCard';
 import { TicketSummaryCard } from '@/components/tickets/ticket-detail/TicketSummaryCard';
+import { getTicket } from '@/lib/api';
 import type { TicketActivityItem, TicketDetailModel, TicketStatus } from '@/types/ticket';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const mockActivity: TicketActivityItem[] = [
   {
@@ -50,19 +51,32 @@ export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = typeof params.id === 'string' ? params.id : 'TKT-1247';
 
-  const [status, setStatus] = useState<TicketStatus>('IN_PROGRESS');
+  const [loading, setLoading] = useState(true);
+  const [ticketDetails, setTicketDetails] = useState<TicketDetailModel | null>(null);
 
-  const ticket: TicketDetailModel = {
-    id: ticketId,
-    title: 'Implement rate limiting on auth endpoints',
-    description:
-      'Following the brute force attack incident (INC-2847), we need to implement rate limiting on all authentication endpoints to prevent similar attacks in the future. This should include login, password reset, and API authentication endpoints.',
-    assignee: 'John Doe',
-    severity: 'HIGH',
-    status: 'IN_PROGRESS',
-    createdAt: '2026-04-30 14:35',
-    updatedAt: '2026-05-02 09:15',
-  };
+  const fetchTicketDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getTicket(ticketId);
+      setTicketDetails(data);
+    } catch (err) {
+      console.error('Failed to fetch ticket details:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [ticketId]);
+
+  useEffect(() => {
+    fetchTicketDetails();
+  }, [fetchTicketDetails]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!ticketDetails) {
+    return <div>Ticket not found</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -70,14 +84,14 @@ export default function TicketDetailPage() {
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <aside className="w-full shrink-0 space-y-4 lg:max-w-[320px]">
-          <TicketDetailsCard ticket={ticket} status={status} onStatusChange={setStatus} />
+          <TicketDetailsCard ticket={ticketDetails} />
           <TicketActionsCard />
           <TicketQuickStatsCard />
           {/* <TicketLinkedIncidentCard ticket={ticket} /> */}
         </aside>
 
         <div className="min-w-0 flex-1 space-y-4">
-          <TicketSummaryCard ticket={ticket} status={status} />
+          <TicketSummaryCard ticket={ticketDetails} />
           <TicketActivityCard items={mockActivity} />
           <TicketCommentForm />
         </div>

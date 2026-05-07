@@ -1,5 +1,5 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
-import { TicketBase } from '@/types/ticket';
+import { TicketBase, TicketDetailModel } from '@/types/ticket';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -56,4 +56,8 @@ export async function deleteIncident(id: string): Promise<void> {
 
 export async function getTickets(): Promise<TicketBase[]> {
   return request<TicketBase[]>(`/tickets`);
+}
+
+export async function getTicket(code: string): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${code}`);
 }

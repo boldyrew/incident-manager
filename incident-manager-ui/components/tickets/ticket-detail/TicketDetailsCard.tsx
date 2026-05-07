@@ -10,37 +10,37 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { nameInitials } from '@/lib/nameInitials';
-import { getTicketSeverityBadgeVariant } from '@/lib/ticketBadgeVariants';
+import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketDetailModel, TicketStatus } from '@/types/ticket';
+import { useState } from 'react';
 
 export interface TicketDetailsCardProps {
   ticket: TicketDetailModel;
-  status: TicketStatus;
-  onStatusChange: (status: TicketStatus) => void;
 }
 
-export function TicketDetailsCard({ ticket, status, onStatusChange }: TicketDetailsCardProps) {
+export function TicketDetailsCard({ ticket }: TicketDetailsCardProps) {
+  const [status, setStatus] = useState<TicketStatus>(ticket.status);
   return (
-    <ContentPanel title='Ticket Details'>
+    <ContentPanel title="Ticket Details">
       <dl className="space-y-4 text-sm">
         <div>
           <dt className="text-muted-foreground">Ticket ID</dt>
-          <dd className="mt-0.5 font-medium text-blue-400">{ticket.id}</dd>
+          <dd className="mt-0.5 font-medium text-blue-400">{ticket.code}</dd>
         </div>
         <div>
           <dt className="mb-1.5 text-muted-foreground">Priority</dt>
           <dd>
             <Badge
-              variant={getTicketSeverityBadgeVariant(ticket.severity)}
-              label={ticket.severity}
+              variant={getTicketPriorityBadgeVariant(ticket.priority)}
+              label={ticket.priority}
             />
           </dd>
         </div>
         <div>
           <dt className="mb-1.5 text-muted-foreground">Status</dt>
           <dd>
-            <Select value={status} onValueChange={(v) => onStatusChange(v as TicketStatus)}>
+            <Select value={status} onValueChange={(v) => setStatus(v as TicketStatus)}>
               <SelectTrigger className="h-9 bg-secondary/40">
                 <SelectValue />
               </SelectTrigger>
@@ -58,9 +58,11 @@ export function TicketDetailsCard({ ticket, status, onStatusChange }: TicketDeta
           <dt className="text-muted-foreground">Assigned To</dt>
           <dd className="mt-1.5 flex items-center gap-2">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-700 text-xs font-medium text-white">
-              {nameInitials(ticket.assignee)}
+              {nameInitials(ticket.assignedTo ?? '-')}
             </span>
-            <span className="font-medium text-foreground">{ticket.assignee}</span>
+            <span className="font-medium text-foreground">
+              {ticket.assignedTo ? ticket.assignedTo : 'Unassigned'}
+            </span>
           </dd>
         </div>
         {/* <div>

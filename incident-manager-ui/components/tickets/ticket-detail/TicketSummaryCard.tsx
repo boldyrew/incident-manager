@@ -3,23 +3,25 @@
 import { ContentPanel } from '@/components/layout/ContentPanel';
 import { Badge } from '@/components/ui/badge';
 import {
-  getTicketSeverityBadgeVariant,
+  getTicketPriorityBadgeVariant,
   getTicketStatusBadgeVariant,
 } from '@/lib/ticketBadgeVariants';
-import type { TicketStatus } from '@/types/ticket';
+import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketDetailModel } from '@/types/ticket';
 
 export interface TicketSummaryCardProps {
-  ticket: Pick<TicketDetailModel, 'title' | 'description' | 'severity'>;
-  status: TicketStatus;
+  ticket: Pick<TicketDetailModel, 'title' | 'description' | 'priority' | 'status' | 'assignedTo'>;
 }
 
-export function TicketSummaryCard({ ticket, status }: TicketSummaryCardProps) {
+export function TicketSummaryCard({ ticket }: TicketSummaryCardProps) {
   return (
     <ContentPanel>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Badge variant={getTicketSeverityBadgeVariant(ticket.severity)} label={ticket.severity} />
-        <Badge variant={getTicketStatusBadgeVariant(status)} label={status.replace('_', ' ')} />
+        <Badge variant={getTicketPriorityBadgeVariant(ticket.priority)} label={ticket.priority} />
+        <Badge
+          variant={getTicketStatusBadgeVariant(ticket.status)}
+          label={ticketStatusLabel[ticket.status] || ticket.status}
+        />
       </div>
       <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         {ticket.title}
