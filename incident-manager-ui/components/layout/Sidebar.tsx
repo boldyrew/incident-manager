@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Shield,
   AlertTriangle,
@@ -10,8 +10,11 @@ import {
   Building2,
   Settings,
   Ticket,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
+import { nameInitials } from '@/lib/nameInitials';
 
 const navItems = [
   {
@@ -39,6 +42,13 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
     <div className="w-64 flex-shrink-0 bg-card border-r border-border flex flex-col">
@@ -83,12 +93,23 @@ export function Sidebar() {
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-semibold text-primary">SA</span>
+            <span className="text-xs font-semibold text-primary">
+              {user ? nameInitials(user.fullName) : 'SA'}
+            </span>
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">Security Analyst</p>
-            <p className="text-xs text-muted-foreground truncate">SecureOps</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground truncate">
+              {user?.fullName ?? 'Security Analyst'}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">{user?.role ?? 'SecureOps'}</p>
           </div>
+          <button
+            onClick={handleLogout}
+            title="Sign out"
+            className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>

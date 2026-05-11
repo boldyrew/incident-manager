@@ -8,7 +8,7 @@ export interface Incident {
   severity: IncidentSeverity;
   status: IncidentStatus;
   client: string;
-  assignedTo: string | null;
+  // assignedTo: string | null;
   detectedAt: Date;
   createdAt: Date;
   updatedAt: Date;

@@ -91,7 +91,7 @@ export class IncidentsRepository {
       severity: incident.severity,
       status: incident.status,
       client: incident.client,
-      assignedTo: incident.assignedTo,
+      // assignedTo: incident.assignedTo,
       detectedAt: incident.detectedAt,
       createdAt: incident.createdAt,
       updatedAt: incident.updatedAt,
