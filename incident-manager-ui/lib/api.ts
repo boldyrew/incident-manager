@@ -9,9 +9,15 @@ interface GetIncidentsParams {
   search?: string;
 }
 
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     ...options,
   });
 
