@@ -1,12 +1,20 @@
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
+export interface TicketTenantSummary {
+  id: string;
+  name: string;
+  alias: string;
+}
+
 export interface TicketBase {
   code: string;
   title: string;
   priority: TicketPriority;
   status: TicketStatus;
   assignedTo?: string;
+  incidentId?: string | null;
+  tenant: TicketTenantSummary | null;
   createdAt: string;
   updatedAt: string;
 }

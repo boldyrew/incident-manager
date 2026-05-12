@@ -5,6 +5,12 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketBase, TicketDetailModel } from './entities/ticket.entity';
 
+const ticketTenantSelect = {
+  id: true,
+  name: true,
+  alias: true,
+} satisfies Prisma.TenantSelect;
+
 const ticketBaseSelect = {
   code: true,
   title: true,
@@ -13,6 +19,7 @@ const ticketBaseSelect = {
   incidentId: true,
   createdAt: true,
   updatedAt: true,
+  tenant: { select: ticketTenantSelect },
 } satisfies Prisma.TicketSelect;
 
 const ticketDetailSelect = {
@@ -59,6 +66,7 @@ export class TicketRepository {
 
     const ticket = await this.prisma.ticket.create({
       data: createData,
+      select: ticketBaseSelect,
     });
 
     return this.mapTicketBase(ticket);
@@ -90,6 +98,7 @@ export class TicketRepository {
     const ticket = await this.prisma.ticket.update({
       where: { code },
       data: dto,
+      select: ticketBaseSelect,
     });
 
     return this.mapTicketBase(ticket);
@@ -117,6 +126,9 @@ export class TicketRepository {
       priority: ticket.priority,
       status: ticket.status,
       incidentId: ticket.incidentId,
+      tenant: ticket.tenant
+        ? { id: ticket.tenant.id, name: ticket.tenant.name, alias: ticket.tenant.alias }
+        : null,
       createdAt: ticket.createdAt,
       updatedAt: ticket.updatedAt,
     };

@@ -1,3 +1,8 @@
+export interface TicketTenantSummary {
+  id: string;
+  name: string;
+  alias: string;
+}
 
 export interface TicketBase {
   code: string;
@@ -5,7 +10,8 @@ export interface TicketBase {
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
   // assignedTo: string | null;
-  incidentId: string;
+  incidentId: string | null;
+  tenant: TicketTenantSummary | null;
   createdAt: Date;
   updatedAt: Date;
 }
