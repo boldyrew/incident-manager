@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { resolveScopedTenantId } from '../auth/utils/scoped-tenant';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketRepository } from './ticket.repository';
@@ -7,27 +9,30 @@ import { TicketRepository } from './ticket.repository';
 export class TicketService {
   constructor(private readonly ticketRepository: TicketRepository) {}
 
-  create(createTicketDto: CreateTicketDto) {
-    return this.ticketRepository.create(createTicketDto);
+  async create(createTicketDto: CreateTicketDto, user: AuthenticatedUser) {
+    const scopedTenantId = resolveScopedTenantId(user);
+    return this.ticketRepository.create(createTicketDto, scopedTenantId);
   }
 
-  findAll() {
-    return this.ticketRepository.findAll();
+  findAll(user: AuthenticatedUser) {
+    const scopedTenantId = resolveScopedTenantId(user);
+    return this.ticketRepository.findAll(scopedTenantId);
   }
 
-  async findOne(id: string) {
-    const ticket = await this.ticketRepository.findByCode(id);
-    if (!ticket) throw new NotFoundException(`Ticket ${id} not found`);
+  async findOne(code: string, user: AuthenticatedUser) {
+    const scopedTenantId = resolveScopedTenantId(user);
+    const ticket = await this.ticketRepository.findByCode(code, scopedTenantId);
+    if (!ticket) throw new NotFoundException(`Ticket ${code} not found`);
     return ticket;
   }
 
-  async update(id: string, updateTicketDto: UpdateTicketDto) {
-    await this.findOne(id);
-    return this.ticketRepository.update(id, updateTicketDto);
+  async update(code: string, updateTicketDto: UpdateTicketDto, user: AuthenticatedUser) {
+    await this.findOne(code, user);
+    return this.ticketRepository.update(code, updateTicketDto);
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
-    return this.ticketRepository.delete(id);
+  async remove(code: string, user: AuthenticatedUser) {
+    await this.findOne(code, user);
+    return this.ticketRepository.deleteByCode(code);
   }
 }

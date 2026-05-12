@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Prisma, Ticket } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -32,7 +32,19 @@ type TicketDetailRecord = Prisma.TicketGetPayload<{
 export class TicketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateTicketDto): Promise<TicketBase> {
+  async create(dto: CreateTicketDto, scopedTenantId?: string): Promise<TicketBase> {
+    const incident = await this.prisma.incident.findFirst({
+      where: {
+        id: dto.incidentId,
+        ...(scopedTenantId !== undefined ? { tenantId: scopedTenantId } : {}),
+      },
+      select: { tenantId: true },
+    });
+    if (!incident) {
+      throw new NotFoundException(`Incident ${dto.incidentId} not found`);
+    }
+    const tenantId = incident.tenantId ?? scopedTenantId ?? null;
+
     const code = await this.getNewTicketCode();
     const createData: Prisma.TicketUncheckedCreateInput = {
       code,
@@ -42,6 +54,7 @@ export class TicketRepository {
       status: dto.status,
       // assignedTo: dto.assignedTo,
       incidentId: dto.incidentId,
+      tenantId,
     };
 
     const ticket = await this.prisma.ticket.create({
@@ -51,8 +64,9 @@ export class TicketRepository {
     return this.mapTicketBase(ticket);
   }
 
-  async findAll(): Promise<TicketBase[]> {
+  async findAll(scopedTenantId?: string): Promise<TicketBase[]> {
     const tickets = await this.prisma.ticket.findMany({
+      where: scopedTenantId ? { tenantId: scopedTenantId } : {},
       orderBy: { createdAt: 'desc' },
       select: ticketBaseSelect,
     });
@@ -60,9 +74,12 @@ export class TicketRepository {
     return tickets.map((ticket) => this.mapTicketBase(ticket));
   }
 
-  async findByCode(code: string): Promise<TicketDetailModel | null> {
-    const ticket = await this.prisma.ticket.findUnique({
-      where: { code },
+  async findByCode(code: string, scopedTenantId?: string): Promise<TicketDetailModel | null> {
+    const ticket = await this.prisma.ticket.findFirst({
+      where: {
+        code,
+        ...(scopedTenantId ? { tenantId: scopedTenantId } : {}),
+      },
       select: ticketDetailSelect,
     });
     if (!ticket) return null;
@@ -78,8 +95,11 @@ export class TicketRepository {
     return this.mapTicketBase(ticket);
   }
 
-  async delete(id: string): Promise<TicketBase> {
-    const ticket = await this.prisma.ticket.delete({ where: { id } });
+  async deleteByCode(code: string): Promise<TicketBase> {
+    const ticket = await this.prisma.ticket.delete({
+      where: { code },
+      select: ticketBaseSelect,
+    });
     return this.mapTicketBase(ticket);
   }
 

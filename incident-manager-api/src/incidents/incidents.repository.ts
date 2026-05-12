@@ -19,7 +19,7 @@ export interface FindAllIncidentFilters {
 export class IncidentsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateIncidentDto): Promise<Incident> {
+  async create(dto: CreateIncidentDto, options?: { tenantId?: string }): Promise<Incident> {
     const code = await this.getNewIncidentCode();
 
     const incident = await this.prisma.incident.create({
@@ -27,17 +27,22 @@ export class IncidentsRepository {
         ...dto,
         code,
         detectedAt: new Date(dto.detectedAt),
+        ...(options?.tenantId != null ? { tenantId: options.tenantId } : {}),
       },
     });
 
     return this.mapIncident(incident);
   }
 
-  async findAll(filters: FindAllIncidentFilters = {}): Promise<Incident[]> {
+  async findAll(
+    filters: FindAllIncidentFilters = {},
+    scopedTenantId?: string,
+  ): Promise<Incident[]> {
     const { severity, status, search } = filters;
 
     const incidents = await this.prisma.incident.findMany({
       where: {
+        ...(scopedTenantId ? { tenantId: scopedTenantId } : {}),
         ...(severity && { severity }),
         ...(status && { status }),
         ...(search && {
@@ -54,8 +59,13 @@ export class IncidentsRepository {
     return incidents.map((incident) => this.mapIncident(incident));
   }
 
-  async findById(id: string): Promise<Incident | null> {
-    const incident = await this.prisma.incident.findUnique({ where: { id } });
+  async findById(id: string, scopedTenantId?: string): Promise<Incident | null> {
+    const incident = await this.prisma.incident.findFirst({
+      where: {
+        id,
+        ...(scopedTenantId ? { tenantId: scopedTenantId } : {}),
+      },
+    });
     if (!incident) return null;
     return this.mapIncident(incident);
   }
