@@ -3,7 +3,7 @@
 import { ContentPanel } from '@/components/layout/ContentPanel';
 import { Button } from '@/components/ui/button';
 
-export function TicketActionsCard() {
+export function TicketActionsPanel() {
   return (
     <ContentPanel title="Actions">
       <div className="flex flex-col gap-2">

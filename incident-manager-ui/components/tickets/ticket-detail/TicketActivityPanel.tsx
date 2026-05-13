@@ -35,11 +35,11 @@ function activityIcon(type: TicketActivityType) {
   }
 }
 
-export interface TicketActivityCardProps {
+export interface TicketActivityPanelProps {
   items: TicketActivityItem[];
 }
 
-export function TicketActivityCard({ items }: TicketActivityCardProps) {
+export function TicketActivityPanel({ items }: TicketActivityPanelProps) {
   return (
     <ContentPanel title='Activity'>
       <div className="relative">

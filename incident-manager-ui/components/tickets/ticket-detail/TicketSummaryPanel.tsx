@@ -9,11 +9,11 @@ import {
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketDetailModel } from '@/types/ticket';
 
-export interface TicketSummaryCardProps {
+export interface TicketSummaryPanelProps {
   ticket: Pick<TicketDetailModel, 'title' | 'description' | 'priority' | 'status' | 'assignedTo'>;
 }
 
-export function TicketSummaryCard({ ticket }: TicketSummaryCardProps) {
+export function TicketSummaryPanel({ ticket }: TicketSummaryPanelProps) {
   return (
     <ContentPanel>
       <div className="mb-4 flex flex-wrap items-center gap-2">

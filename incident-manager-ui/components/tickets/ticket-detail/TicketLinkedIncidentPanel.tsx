@@ -4,11 +4,11 @@ import { ContentPanel } from '@/components/layout/ContentPanel';
 import type { TicketBase } from '@/types/ticket';
 import Link from 'next/link';
 
-export interface TicketLinkedIncidentCardProps {
+export interface TicketLinkedIncidentPanelProps {
   ticket: TicketBase;
 }
 
-export function TicketLinkedIncidentCard({ ticket }: TicketLinkedIncidentCardProps) {
+export function TicketLinkedIncidentPanel({ ticket }: TicketLinkedIncidentPanelProps) {
   return (
     <ContentPanel title='Linked Incident'>
       <div className="rounded-lg border border-border bg-background/80 p-4">

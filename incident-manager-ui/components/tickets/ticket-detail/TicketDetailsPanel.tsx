@@ -15,11 +15,11 @@ import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketDetailModel, TicketStatus } from '@/types/ticket';
 import { useState } from 'react';
 
-export interface TicketDetailsCardProps {
+export interface TicketDetailsPanelProps {
   ticket: TicketDetailModel;
 }
 
-export function TicketDetailsCard({ ticket }: TicketDetailsCardProps) {
+export function TicketDetailsPanel({ ticket }: TicketDetailsPanelProps) {
   const [status, setStatus] = useState<TicketStatus>(ticket.status);
   return (
     <ContentPanel title="Ticket Details">
