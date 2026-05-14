@@ -2,11 +2,13 @@
 
 import { ContentPanel } from '@/components/layout/ContentPanel';
 import { Button } from '@/components/ui/button';
+import { TicketLinkIncidentDialog } from '@/components/tickets/ticket-detail/TicketLinkIncidentDialog';
 import { TicketReassignDialog } from '@/components/tickets/ticket-detail/TicketReassignDialog';
 import { useState } from 'react';
 
 export function TicketActionsPanel() {
   const [reassignOpen, setReassignOpen] = useState(false);
+  const [linkIncidentOpen, setLinkIncidentOpen] = useState(false);
 
   return (
     <ContentPanel title="Actions">
@@ -14,7 +16,12 @@ export function TicketActionsPanel() {
         <Button className="w-full" type="button" onClick={() => setReassignOpen(true)}>
           Reassign Ticket
         </Button>
-        <Button variant="secondary" className="w-full bg-secondary hover:bg-secondary/80">
+        <Button
+          variant="secondary"
+          className="w-full bg-secondary hover:bg-secondary/80"
+          type="button"
+          onClick={() => setLinkIncidentOpen(true)}
+        >
           Link to Incident
         </Button>
         <Button variant="secondary" className="w-full bg-secondary hover:bg-secondary/80">
@@ -23,6 +30,7 @@ export function TicketActionsPanel() {
       </div>
 
       <TicketReassignDialog open={reassignOpen} onOpenChange={setReassignOpen} />
+      <TicketLinkIncidentDialog open={linkIncidentOpen} onOpenChange={setLinkIncidentOpen} />
     </ContentPanel>
   );
 }
