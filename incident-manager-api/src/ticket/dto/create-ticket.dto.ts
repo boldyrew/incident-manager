@@ -20,7 +20,7 @@ export class CreateTicketDto {
 
   @IsString()
   @IsOptional()
-  assignedTo?: string;
+  assignedUserId?: string;
 
   @IsString()
   @IsNotEmpty()

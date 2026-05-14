@@ -25,6 +25,7 @@ const ticketBaseSelect = {
 const ticketDetailSelect = {
   ...ticketBaseSelect,
   description: true,
+  assignee: true,
 } satisfies Prisma.TicketSelect;
 
 type TicketBaseRecord = Prisma.TicketGetPayload<{
@@ -138,6 +139,9 @@ export class TicketRepository {
     return {
       ...this.mapTicketBase(ticket),
       description: ticket.description,
+      assignedUser: ticket.assignee
+        ? { id: ticket.assignee.id, fullName: ticket.assignee.fullName, email: ticket.assignee.email }
+        : null,
     };
   }
 }

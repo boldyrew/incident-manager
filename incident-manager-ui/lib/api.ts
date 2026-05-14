@@ -1,5 +1,6 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
 import { TicketBase, TicketDetailModel } from '@/types/ticket';
+import { User } from '@/types/user';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -66,4 +67,15 @@ export async function getTickets(): Promise<TicketBase[]> {
 
 export async function getTicket(code: string): Promise<TicketDetailModel> {
   return request<TicketDetailModel>(`/tickets/${code}`);
+}
+
+export async function getAnalysts(): Promise<User[]> {
+  return request<User[]>(`/users/analysts`);
+}
+
+export async function assignTicket(code: string, userId: string | null): Promise<void> {
+  return request<void>(`/tickets/${code}/assign`, {
+    method: 'PATCH',
+    body: JSON.stringify({ userId }),
+  });
 }

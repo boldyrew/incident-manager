@@ -7,6 +7,7 @@ import { TicketCommentForm } from '@/components/tickets/ticket-detail/TicketComm
 import { TicketDetailsPanel } from '@/components/tickets/ticket-detail/TicketDetailsPanel';
 import { TicketQuickStatsPanel } from '@/components/tickets/ticket-detail/TicketQuickStatsPanel';
 import { TicketSummaryPanel } from '@/components/tickets/ticket-detail/TicketSummaryPanel';
+import { TicketDetailProvider } from '@/context/ticket-context';
 import { getTicket } from '@/lib/api';
 import type { TicketActivityItem, TicketDetailModel, TicketStatus } from '@/types/ticket';
 import { useParams } from 'next/navigation';
@@ -79,23 +80,25 @@ export default function TicketDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <TicketBackLink />
+    <TicketDetailProvider ticketId={ticketId} ticket={ticketDetails} refetch={fetchTicketDetails}>
+      <div className="space-y-6">
+        <TicketBackLink />
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 space-y-4 lg:max-w-[320px]">
-          <TicketDetailsPanel ticket={ticketDetails} />
-          <TicketActionsPanel />
-          <TicketQuickStatsPanel />
-          {/* <TicketLinkedIncidentPanel ticket={ticket} /> */}
-        </aside>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+          <aside className="w-full shrink-0 space-y-4 lg:max-w-[320px]">
+            <TicketDetailsPanel />
+            <TicketActionsPanel />
+            <TicketQuickStatsPanel />
+            {/* <TicketLinkedIncidentPanel ticket={ticket} /> */}
+          </aside>
 
-        <div className="min-w-0 flex-1 space-y-4">
-          <TicketSummaryPanel ticket={ticketDetails} />
-          <TicketActivityPanel items={mockActivity} />
-          <TicketCommentForm />
+          <div className="min-w-0 flex-1 space-y-4">
+            <TicketSummaryPanel ticket={ticketDetails} />
+            <TicketActivityPanel items={mockActivity} />
+            <TicketCommentForm />
+          </div>
         </div>
       </div>
-    </div>
+    </TicketDetailProvider>
   );
 }

@@ -9,17 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { UserItem } from '@/components/user/UserItem';
+import { useTicketDetail } from '@/context/ticket-context';
 import { nameInitials } from '@/lib/nameInitials';
 import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
-import type { TicketDetailModel, TicketStatus } from '@/types/ticket';
+import type { TicketStatus } from '@/types/ticket';
 import { useState } from 'react';
 
-export interface TicketDetailsPanelProps {
-  ticket: TicketDetailModel;
-}
-
-export function TicketDetailsPanel({ ticket }: TicketDetailsPanelProps) {
+export function TicketDetailsPanel() {
+  const { ticket } = useTicketDetail();
   const [status, setStatus] = useState<TicketStatus>(ticket.status);
   return (
     <ContentPanel title="Ticket Details">
@@ -56,14 +55,13 @@ export function TicketDetailsPanel({ ticket }: TicketDetailsPanelProps) {
         </div>
         <div>
           <dt className="text-muted-foreground">Assigned To</dt>
-          <dd className="mt-1.5 flex items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-700 text-xs font-medium text-white">
-              {nameInitials(ticket.assignedTo ?? '-')}
-            </span>
-            <span className="font-medium text-foreground">
-              {ticket.assignedTo ? ticket.assignedTo : 'Unassigned'}
-            </span>
-          </dd>
+          {ticket.assignedUser ? (
+            <dd className="mt-1.5">
+              <UserItem user={ticket.assignedUser} />
+            </dd>
+          ) : (
+            <dd className="mt-1.5 text-muted-foreground">Unassigned</dd>
+          )}
         </div>
         {/* <div>
           <dt className="text-muted-foreground">Linked Incident</dt>

@@ -4,44 +4,45 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { UserSelect, type UserSelectOption } from '@/components/ui/UserSelect';
+import { UserSelect, USER_SELECT_UNASSIGNED } from '@/components/user/UserSelect';
+import { useTicketDetail } from '@/context/ticket-context';
+import { assignTicket, getAnalysts } from '@/lib/api';
+import { User } from '@/types/user';
 import { useEffect, useState } from 'react';
-
-/** Mock roster for the re-assign flow (UI only; not wired to the API). */
-const MOCK_ASSIGNABLE_USERS: readonly UserSelectOption[] = [
-  { id: 'mock-user-1', name: 'Sarah Chen', email: 'sarah.chen@secureops.example' },
-  { id: 'mock-user-2', name: 'James Walker', email: 'james.walker@secureops.example' },
-  { id: 'mock-user-3', name: 'Maria Rodriguez', email: 'maria.rodriguez@secureops.example' },
-  { id: 'mock-user-4', name: 'David Kim', email: 'david.kim@secureops.example' },
-  { id: 'mock-user-5', name: 'Alex Rivera', email: 'alex.rivera@secureops.example' },
-];
 
 export interface TicketReassignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Override mock users when wiring to real data later. */
-  users?: readonly UserSelectOption[];
 }
 
-export function TicketReassignDialog({
-  open,
-  onOpenChange,
-  users = MOCK_ASSIGNABLE_USERS,
-}: TicketReassignDialogProps) {
+export function TicketReassignDialog({ open, onOpenChange }: TicketReassignDialogProps) {
+  const { ticket, refetch } = useTicketDetail();
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    if (!open) setSelectedUserId(undefined);
-  }, [open]);
+    if (open) {
+      setSelectedUserId(ticket.assignedUser?.id ?? USER_SELECT_UNASSIGNED);
+      fetchAnalysts();
+    } else {
+      setSelectedUserId(undefined);
+    }
+  }, [open, ticket.assignedUser?.id]);
 
-  function handleConfirmAssign() {
-    if (!selectedUserId) return;
+  async function fetchAnalysts() {
+    const analysts = await getAnalysts();
+    setUsers(analysts);
+  }
+
+  async function handleConfirmAssign() {
+    const choice = selectedUserId ?? USER_SELECT_UNASSIGNED;
+    const userId = choice === USER_SELECT_UNASSIGNED ? null : choice;
+    await assignTicket(ticket.code, userId);
+    await refetch?.();
     onOpenChange(false);
     setSelectedUserId(undefined);
   }
@@ -50,19 +51,15 @@ export function TicketReassignDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Reassign ticket</DialogTitle>
-          <DialogDescription>
-            Choose who should own this ticket. This preview uses mock users only.
-          </DialogDescription>
+          <DialogTitle>Assign Analyst</DialogTitle>
         </DialogHeader>
-
         <div className="grid gap-2 py-2">
-          <Label htmlFor="reassign-user">Assign to</Label>
           <UserSelect
-            id="reassign-user"
+            id="assign-analyst"
             users={users}
-            value={selectedUserId}
+            value={selectedUserId ?? (open ? USER_SELECT_UNASSIGNED : undefined)}
             onValueChange={setSelectedUserId}
+            allowUnassigned
           />
         </div>
 
@@ -70,8 +67,8 @@ export function TicketReassignDialog({
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="button" disabled={!selectedUserId} onClick={handleConfirmAssign}>
-            Assign
+          <Button type="button" onClick={handleConfirmAssign}>
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>

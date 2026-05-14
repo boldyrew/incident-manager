@@ -5,10 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TicketRepository } from './ticket.repository';
 import { AuthModule } from '../auth/auth.module';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UsersRepository } from '../users/users.repository';
 
 @Module({
   imports: [AuthModule],
   controllers: [TicketController],
-  providers: [TicketService, TicketRepository, PrismaService, JwtAuthGuard],
+  providers: [TicketService, TicketRepository, PrismaService, JwtAuthGuard, UsersRepository],
 })
 export class TicketModule {}
