@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/select';
 import { UserItem } from '@/components/user/UserItem';
 import { useTicketDetail } from '@/context/ticket-context';
-import { nameInitials } from '@/lib/nameInitials';
+import { useFormatDateTime } from '@/hooks/useFormatDateTime';
 import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketStatus } from '@/types/ticket';
@@ -20,6 +20,7 @@ import { useState } from 'react';
 export function TicketDetailsPanel() {
   const { ticket } = useTicketDetail();
   const [status, setStatus] = useState<TicketStatus>(ticket.status);
+  const { formatDateTime } = useFormatDateTime();
   return (
     <ContentPanel title="Ticket Details">
       <dl className="space-y-4 text-sm">
@@ -77,11 +78,11 @@ export function TicketDetailsPanel() {
         </div> */}
         <div>
           <dt className="text-muted-foreground">Created</dt>
-          <dd className="mt-0.5 text-foreground">{ticket.createdAt}</dd>
+          <dd className="mt-0.5 text-foreground">{formatDateTime(ticket.createdAt)}</dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Last Updated</dt>
-          <dd className="mt-0.5 text-foreground">{ticket.updatedAt}</dd>
+          <dd className="mt-0.5 text-foreground">{formatDateTime(ticket.updatedAt)}</dd>
         </div>
       </dl>
     </ContentPanel>
