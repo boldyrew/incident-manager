@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'ANALYST' | 'CLIENT_USER';
+import { UserRole } from 'src/common/types';
 
 export interface User {
   id: string;

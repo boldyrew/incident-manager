@@ -1,5 +1,7 @@
 'use client';
 
+import { SeverityBadge } from '@/components/incidents/SeverityBadge';
+import { StatusBadge } from '@/components/incidents/StatusBadge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,6 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useTicketDetail } from '@/context/ticket-context';
+import { getIncidents, linkIncident } from '@/lib/api';
+import { Incident } from '@/types/incident';
 import { useEffect, useState } from 'react';
 
 export interface TicketLinkIncidentDialogProps {
@@ -23,17 +28,10 @@ export interface TicketLinkIncidentDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Mock incidents for linking until the API is wired. */
-const MOCK_LINKABLE_INCIDENTS = [
-  { id: 'mock-1', code: 'INC-2024-0142', title: 'Suspicious login attempts from unknown IP' },
-  { id: 'mock-2', code: 'INC-2024-0188', title: 'Malware detected on finance workstation' },
-  { id: 'mock-3', code: 'INC-2024-0201', title: 'Phishing campaign targeting accounts payable' },
-  { id: 'mock-4', code: 'INC-2024-0224', title: 'Unusual outbound traffic to rare destinations' },
-  { id: 'mock-5', code: 'INC-2024-0237', title: 'Privilege escalation detected on domain controller' },
-] as const;
-
 export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncidentDialogProps) {
+  const { ticket, refetch } = useTicketDetail();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | undefined>(undefined);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
 
   useEffect(() => {
     if (!open) {
@@ -41,9 +39,21 @@ export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncid
     }
   }, [open]);
 
-  function handleConfirmLink() {
+  useEffect(() => {
+    if (open) {
+      fetchIncidents();
+    }
+  }, [open]);
+
+  async function fetchIncidents() {
+    const incidents = await getIncidents({ tenantId: ticket.tenant?.id });
+    setIncidents(incidents);
+  }
+
+  async function handleConfirmLink() {
     if (!selectedIncidentId) return;
-    // Mock only: no API call yet.
+    await linkIncident(ticket.id, selectedIncidentId);
+    await refetch?.();
     onOpenChange(false);
     setSelectedIncidentId(undefined);
   }
@@ -56,10 +66,7 @@ export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncid
         </DialogHeader>
         <div className="grid min-w-0 gap-2 py-2">
           <Label htmlFor="link-incident">Incident</Label>
-          <Select
-            value={selectedIncidentId}
-            onValueChange={setSelectedIncidentId}
-          >
+          <Select value={selectedIncidentId} onValueChange={setSelectedIncidentId}>
             <SelectTrigger id="link-incident" className="w-full min-w-0">
               <SelectValue
                 placeholder="Select an incident"
@@ -67,10 +74,16 @@ export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncid
               />
             </SelectTrigger>
             <SelectContent className="z-[100] max-h-[min(320px,var(--radix-select-content-available-height))]">
-              {MOCK_LINKABLE_INCIDENTS.map((inc) => (
+              {incidents.map((inc) => (
                 <SelectItem key={inc.id} value={inc.id}>
                   <span className="font-mono text-xs text-muted-foreground">{inc.code}</span>
                   <span className="ml-2">{inc.title}</span>
+                  <span className="ml-2">
+                    <SeverityBadge severity={inc.severity} />
+                  </span>
+                  <span className="ml-2">
+                    <StatusBadge status={inc.status} />
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>

@@ -6,6 +6,6 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async findAllAnalysts() {
-    return this.usersRepository.findByUserRole('ANALYST');
+    return this.usersRepository.findByRole('ANALYST');
   }
 }

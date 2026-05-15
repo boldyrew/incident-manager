@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserRole } from './entities/user';
 import { User } from './entities/user';
 import { User as PrismaUser } from '@prisma/client';
+import { UserRole } from 'src/common/types';
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByUserRole(role: UserRole) {
+  async findByRole(role: UserRole) {
     const users = await this.prisma.user.findMany({
       where: { role },
     });

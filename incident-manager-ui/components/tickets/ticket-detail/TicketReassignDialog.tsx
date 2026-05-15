@@ -41,7 +41,7 @@ export function TicketReassignDialog({ open, onOpenChange }: TicketReassignDialo
   async function handleConfirmAssign() {
     const choice = selectedUserId ?? USER_SELECT_UNASSIGNED;
     const userId = choice === USER_SELECT_UNASSIGNED ? null : choice;
-    await assignTicket(ticket.code, userId);
+    await assignTicket(ticket.id, userId);
     await refetch?.();
     onOpenChange(false);
     setSelectedUserId(undefined);

@@ -1,4 +1,5 @@
-import { User } from "./user";
+import { IncidentBase } from './incident';
+import { User } from './user';
 
 export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
@@ -10,12 +11,14 @@ export interface TicketTenantSummary {
 }
 
 export interface TicketBase {
+  id: string;
   code: string;
   title: string;
   priority: TicketPriority;
   status: TicketStatus;
   assignedTo?: string;
   incidentId?: string | null;
+  incident?: IncidentBase | null;
   tenant: TicketTenantSummary | null;
   createdAt: string;
   updatedAt: string;

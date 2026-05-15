@@ -1,4 +1,5 @@
-import { User } from "src/users/entities/user";
+import { IncidentBase } from 'src/incidents/entities/incident.entity';
+import { User } from 'src/users/entities/user';
 
 export interface TicketTenantSummary {
   id: string;
@@ -7,6 +8,7 @@ export interface TicketTenantSummary {
 }
 
 export interface TicketBase {
+  id: string;
   code: string;
   title: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -19,5 +21,6 @@ export interface TicketBase {
 
 export interface TicketDetailModel extends TicketBase {
   description: string | null;
-  assignedUser: Pick<User, 'id' | 'fullName' | 'email'>;
+  assignedUser: Pick<User, 'id' | 'fullName' | 'email'> | null;
+  incident: IncidentBase | null;
 }

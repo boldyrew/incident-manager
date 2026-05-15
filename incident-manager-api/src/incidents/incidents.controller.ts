@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { IncidentsService } from './incidents.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
@@ -35,27 +36,27 @@ export class IncidentsController {
     @Query('severity') severity?: IncidentSeverity,
     @Query('status') status?: IncidentStatus,
     @Query('search') search?: string,
+    @Query('tenantId') tenantId?: string,
   ) {
-    return this.incidentsService.findAll({ severity, status, search }, user);
+    if (user.role === 'CLIENT_USER' && tenantId) {
+      throw new BadRequestException('Tenant ID is not allowed');
+    }
+    return this.incidentsService.findAll({ severity, status, search, tenantId }, user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.incidentsService.findOne(id, user);
+  findOne(@Param('id') id: string) {
+    return this.incidentsService.findOne(id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateIncidentDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.incidentsService.update(id, dto, user);
+  update(@Param('id') id: string, @Body() dto: UpdateIncidentDto) {
+    return this.incidentsService.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.incidentsService.remove(id, user);
+  remove(@Param('id') id: string) {
+    return this.incidentsService.remove(id);
   }
 }

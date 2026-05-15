@@ -56,7 +56,7 @@ export default function TicketCard({ ticket, highlightTenantStripe = false }: Ti
           </div>
         </div>
         <div>
-          <Link href={`/tickets/${ticket.code}`}>
+          <Link href={`/tickets/${ticket.id}`}>
             <h4
               className="mb-4 cursor-pointer hover:text-blue-400 transition-colors"
               // onClick={() => handleOpenModal(ticket.id)}

@@ -5,6 +5,7 @@ import { TicketActivityPanel } from '@/components/tickets/ticket-detail/TicketAc
 import { TicketBackLink } from '@/components/tickets/ticket-detail/TicketBackLink';
 import { TicketCommentForm } from '@/components/tickets/ticket-detail/TicketCommentForm';
 import { TicketDetailsPanel } from '@/components/tickets/ticket-detail/TicketDetailsPanel';
+import { TicketLinkedIncidentPanel } from '@/components/tickets/ticket-detail/TicketLinkedIncidentPanel';
 import { TicketQuickStatsPanel } from '@/components/tickets/ticket-detail/TicketQuickStatsPanel';
 import { TicketSummaryPanel } from '@/components/tickets/ticket-detail/TicketSummaryPanel';
 import { TicketDetailProvider } from '@/context/ticket-context';
@@ -89,11 +90,11 @@ export default function TicketDetailPage() {
             <TicketDetailsPanel />
             <TicketActionsPanel />
             <TicketQuickStatsPanel />
-            {/* <TicketLinkedIncidentPanel ticket={ticket} /> */}
+            <TicketLinkedIncidentPanel />
           </aside>
 
           <div className="min-w-0 flex-1 space-y-4">
-            <TicketSummaryPanel ticket={ticketDetails} />
+            <TicketSummaryPanel />
             <TicketActivityPanel items={mockActivity} />
             <TicketCommentForm />
           </div>

@@ -2,6 +2,7 @@
 
 import { ContentPanel } from '@/components/layout/ContentPanel';
 import { Badge } from '@/components/ui/badge';
+import { useTicketDetail } from '@/context/ticket-context';
 import {
   getTicketPriorityBadgeVariant,
   getTicketStatusBadgeVariant,
@@ -9,11 +10,8 @@ import {
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import type { TicketDetailModel } from '@/types/ticket';
 
-export interface TicketSummaryPanelProps {
-  ticket: Pick<TicketDetailModel, 'title' | 'description' | 'priority' | 'status' | 'assignedTo'>;
-}
-
-export function TicketSummaryPanel({ ticket }: TicketSummaryPanelProps) {
+export function TicketSummaryPanel() {
+  const { ticket } = useTicketDetail();
   return (
     <ContentPanel>
       <div className="mb-4 flex flex-wrap items-center gap-2">

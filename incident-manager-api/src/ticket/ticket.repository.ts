@@ -1,17 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { incidentBaseSelect } from '../incidents/incidents.repository';
+import { tenantSelect } from '../prisma/selections';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketBase, TicketDetailModel } from './entities/ticket.entity';
 
-const ticketTenantSelect = {
-  id: true,
-  name: true,
-  alias: true,
-} satisfies Prisma.TenantSelect;
-
 const ticketBaseSelect = {
+  id: true,
   code: true,
   title: true,
   priority: true,
@@ -19,13 +16,14 @@ const ticketBaseSelect = {
   incidentId: true,
   createdAt: true,
   updatedAt: true,
-  tenant: { select: ticketTenantSelect },
+  tenant: { select: tenantSelect },
 } satisfies Prisma.TicketSelect;
 
 const ticketDetailSelect = {
   ...ticketBaseSelect,
   description: true,
   assignee: true,
+  incident: { select: incidentBaseSelect },
 } satisfies Prisma.TicketSelect;
 
 type TicketBaseRecord = Prisma.TicketGetPayload<{
@@ -60,7 +58,6 @@ export class TicketRepository {
       description: dto.description,
       priority: dto.priority,
       status: dto.status,
-      // assignedTo: dto.assignedTo,
       incidentId: dto.incidentId,
       tenantId,
     };
@@ -83,21 +80,18 @@ export class TicketRepository {
     return tickets.map((ticket) => this.mapTicketBase(ticket));
   }
 
-  async findByCode(code: string, scopedTenantId?: string): Promise<TicketDetailModel | null> {
+  async findById(id: string): Promise<TicketDetailModel | null> {
     const ticket = await this.prisma.ticket.findFirst({
-      where: {
-        code,
-        ...(scopedTenantId ? { tenantId: scopedTenantId } : {}),
-      },
+      where: { id },
       select: ticketDetailSelect,
     });
     if (!ticket) return null;
     return this.mapTicketDetail(ticket);
   }
 
-  async update(code: string, dto: UpdateTicketDto): Promise<TicketBase> {
+  async update(id: string, dto: UpdateTicketDto): Promise<TicketBase> {
     const ticket = await this.prisma.ticket.update({
-      where: { code },
+      where: { id },
       data: dto,
       select: ticketBaseSelect,
     });
@@ -105,9 +99,9 @@ export class TicketRepository {
     return this.mapTicketBase(ticket);
   }
 
-  async deleteByCode(code: string): Promise<TicketBase> {
+  async delete(id: string): Promise<TicketBase> {
     const ticket = await this.prisma.ticket.delete({
-      where: { code },
+      where: { id },
       select: ticketBaseSelect,
     });
     return this.mapTicketBase(ticket);
@@ -122,6 +116,7 @@ export class TicketRepository {
 
   private mapTicketBase(ticket: TicketBaseRecord): TicketBase {
     return {
+      id: ticket.id,
       code: ticket.code,
       title: ticket.title,
       priority: ticket.priority,
@@ -140,7 +135,21 @@ export class TicketRepository {
       ...this.mapTicketBase(ticket),
       description: ticket.description,
       assignedUser: ticket.assignee
-        ? { id: ticket.assignee.id, fullName: ticket.assignee.fullName, email: ticket.assignee.email }
+        ? {
+            id: ticket.assignee.id,
+            fullName: ticket.assignee.fullName,
+            email: ticket.assignee.email,
+          }
+        : null,
+      incident: ticket.incident
+        ? {
+            id: ticket.incident.id,
+            code: ticket.incident.code,
+            title: ticket.incident.title,
+            status: ticket.incident.status,
+            severity: ticket.incident.severity,
+            detectedAt: ticket.incident.detectedAt,
+          }
         : null,
     };
   }

@@ -68,7 +68,7 @@ export default function TicketsPage() {
       )}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {visibleTickets.map((t) => (
-          <TicketCard key={t.code} ticket={t} highlightTenantStripe={highlightTenantStripe} />
+          <TicketCard key={t.id} ticket={t} highlightTenantStripe={highlightTenantStripe} />
         ))}
       </div>
     </>
