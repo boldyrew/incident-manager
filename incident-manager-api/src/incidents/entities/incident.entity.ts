@@ -1,15 +1,18 @@
-import { IncidentSeverity, IncidentStatus } from '@prisma/client';
+import { TenantBase } from 'src/common/types';
 
-export interface Incident {
+export type IncidentSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+
+export interface IncidentBase {
   id: string;
   code: string;
   title: string;
-  description: string | null;
   severity: IncidentSeverity;
   status: IncidentStatus;
-  client: string;
-  // assignedTo: string | null;
   detectedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface Incident extends IncidentBase {
+  description: string | null;
+  tenant: TenantBase;
 }

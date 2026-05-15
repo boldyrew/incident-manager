@@ -1,5 +1,6 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
 import { TicketBase, TicketDetailModel } from '@/types/ticket';
+import { User } from '@/types/user';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -7,6 +8,7 @@ interface GetIncidentsParams {
   severity?: string;
   status?: string;
   search?: string;
+  tenantId?: string;
 }
 
 function getAuthHeaders(): Record<string, string> {
@@ -34,6 +36,7 @@ export async function getIncidents(params: GetIncidentsParams = {}): Promise<Inc
   if (params.severity) q.set('severity', params.severity);
   if (params.status) q.set('status', params.status);
   if (params.search) q.set('search', params.search);
+  if (params.tenantId) q.set('tenantId', params.tenantId);
   const qs = q.toString();
   return request<Incident[]>(`/incidents${qs ? `?${qs}` : ''}`);
 }
@@ -64,6 +67,24 @@ export async function getTickets(): Promise<TicketBase[]> {
   return request<TicketBase[]>(`/tickets`);
 }
 
-export async function getTicket(code: string): Promise<TicketDetailModel> {
-  return request<TicketDetailModel>(`/tickets/${code}`);
+export async function getTicket(id: string): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${id}`);
+}
+
+export async function getAnalysts(): Promise<User[]> {
+  return request<User[]>(`/users/analysts`);
+}
+
+export async function assignTicket(ticketId: string, userId: string | null): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/assign`, {
+    method: 'PATCH',
+    body: JSON.stringify({ userId }),
+  });
+}
+
+export async function linkIncident(ticketId: string, incidentId: string): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/link-incident`, {
+    method: 'PATCH',
+    body: JSON.stringify({ incidentId }),
+  });
 }

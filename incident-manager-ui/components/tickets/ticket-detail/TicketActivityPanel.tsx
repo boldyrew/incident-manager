@@ -3,6 +3,7 @@
 import { CheckCircle, Clock, MessageSquare, User } from 'lucide-react';
 import type { TicketActivityItem, TicketActivityType } from '@/types/ticket';
 import { ContentPanel } from '@/components/layout/ContentPanel';
+import { useFormatDateTime } from '@/hooks/useFormatDateTime';
 
 function activityIcon(type: TicketActivityType) {
   switch (type) {
@@ -35,11 +36,12 @@ function activityIcon(type: TicketActivityType) {
   }
 }
 
-export interface TicketActivityCardProps {
+export interface TicketActivityPanelProps {
   items: TicketActivityItem[];
 }
 
-export function TicketActivityCard({ items }: TicketActivityCardProps) {
+export function TicketActivityPanel({ items }: TicketActivityPanelProps) {
+  const { formatDateTime } = useFormatDateTime();
   return (
     <ContentPanel title='Activity'>
       <div className="relative">
@@ -55,7 +57,7 @@ export function TicketActivityCard({ items }: TicketActivityCardProps) {
                     <span className="text-muted-foreground"> • {item.action}</span>
                   </p>
                   <time className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                    {item.timestamp}
+                    {formatDateTime(item.timestamp)}
                   </time>
                 </div>
                 {item.content ? (

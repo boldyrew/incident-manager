@@ -9,11 +9,11 @@ const defaultRows: [string, string][] = [
   ['Watchers', '3'],
 ];
 
-export interface TicketQuickStatsCardProps {
+export interface TicketQuickStatsPanelProps {
   rows?: [string, string][];
 }
 
-export function TicketQuickStatsCard({ rows = defaultRows }: TicketQuickStatsCardProps) {
+export function TicketQuickStatsPanel({ rows = defaultRows }: TicketQuickStatsPanelProps) {
   return (
     <ContentPanel title='Quick Stats'>
       <ul className="space-y-2 text-sm">

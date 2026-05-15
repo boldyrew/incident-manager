@@ -2,11 +2,35 @@ import {
   PrismaClient,
   IncidentSeverity,
   IncidentStatus,
+  TicketPriority,
+  TicketStatus,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function seedIncidents() {
+const TENANT_SEEDS = [
+  { name: 'Apex Financial Group', alias: 'apex-financial' },
+  { name: 'Meridian Healthcare', alias: 'meridian-healthcare' },
+  { name: 'GlobalTech Solutions', alias: 'globaltech' },
+  { name: 'Nexus Retail Corp', alias: 'nexus-retail' },
+] as const;
+
+async function seedTenants(): Promise<Map<string, string>> {
+  const byClientName = new Map<string, string>();
+
+  for (const row of TENANT_SEEDS) {
+    const tenant = await prisma.tenant.create({
+      data: { name: row.name, alias: row.alias },
+    });
+    byClientName.set(row.name, tenant.id);
+  }
+
+  console.log(`Seeded ${TENANT_SEEDS.length} tenants successfully`);
+
+  return byClientName;
+}
+
+async function seedIncidents(tenantIdByClient: Map<string, string>) {
   const incidents = [
     {
       code: 'INC-0001',
@@ -90,16 +114,23 @@ async function seedIncidents() {
   const createdIncidents = [];
 
   for (const incident of incidents) {
-    const createdIncident = await prisma.incident.create({ data: {
-      code: incident.code,
-      title: incident.title,
-      description: incident.description,
-      severity: incident.severity,
-      status: incident.status,
-      client: incident.client,
-      // assignedTo: incident.assignedTo,
-      detectedAt: incident.detectedAt,
-    } });
+    const tenantId = tenantIdByClient.get(incident.client);
+    if (!tenantId) {
+      throw new Error(`No tenant seed for client "${incident.client}"`);
+    }
+
+    const createdIncident = await prisma.incident.create({
+      data: {
+        code: incident.code,
+        title: incident.title,
+        description: incident.description,
+        severity: incident.severity,
+        status: incident.status,
+        client: incident.client,
+        tenantId,
+        detectedAt: incident.detectedAt,
+      },
+    });
     createdIncidents.push(createdIncident);
   }
 
@@ -108,18 +139,17 @@ async function seedIncidents() {
   return createdIncidents;
 }
 
-async function seedTickets(incidentMap: Map<string, string>) {
-  const ticketClient = (prisma as any).ticket;
-
+async function seedTickets(
+  incidentMap: Map<string, { id: string; tenantId: string | null }>,
+) {
   const tickets = [
     {
       code: 'TKT-0001',
       title: 'Block Suspicious Source IP',
       description:
         'Add perimeter firewall rule to block source IP 192.168.45.221 and related subnet for brute-force campaign containment.',
-      priority: 'HIGH',
-      status: 'IN_PROGRESS',
-      assignedTo: 'Network Team',
+      priority: TicketPriority.HIGH,
+      status: TicketStatus.IN_PROGRESS,
       incidentCode: 'INC-0001',
     },
     {
@@ -127,9 +157,8 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Reimage Infected Endpoint WS-042',
       description:
         'Perform full disk wipe and controlled reimage of compromised workstation WS-042, then validate endpoint hardening baseline.',
-      priority: 'CRITICAL',
-      status: 'OPEN',
-      assignedTo: 'Endpoint Team',
+      priority: TicketPriority.CRITICAL,
+      status: TicketStatus.OPEN,
       incidentCode: 'INC-0002',
     },
     {
@@ -137,9 +166,8 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Reset Compromised User Credentials',
       description:
         'Force password reset and revoke active sessions for finance users impacted by phishing credential harvest.',
-      priority: 'HIGH',
-      status: 'IN_PROGRESS',
-      assignedTo: 'Identity Team',
+      priority: TicketPriority.HIGH,
+      status: TicketStatus.IN_PROGRESS,
       incidentCode: 'INC-0003',
     },
     {
@@ -147,9 +175,8 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Review Egress Rules for Exfiltration Channel',
       description:
         'Audit and tighten outbound ACLs and proxy policies to prevent traffic to suspicious domain patterns.',
-      priority: 'CRITICAL',
-      status: 'OPEN',
-      assignedTo: 'SOC Team',
+      priority: TicketPriority.CRITICAL,
+      status: TicketStatus.OPEN,
       incidentCode: 'INC-0004',
     },
     {
@@ -157,9 +184,8 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Patch Affected Linux Hosts',
       description:
         'Apply glibc updates and validate mitigation for CVE-2023-4911 on all production Linux assets.',
-      priority: 'CRITICAL',
-      status: 'IN_PROGRESS',
-      assignedTo: 'Platform Team',
+      priority: TicketPriority.CRITICAL,
+      status: TicketStatus.IN_PROGRESS,
       incidentCode: 'INC-0005',
     },
     {
@@ -167,9 +193,8 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Validate Ransomware IOC Coverage',
       description:
         'Confirm EDR signatures and SIEM detections include latest LockBit indicators across all client environments.',
-      priority: 'MEDIUM',
-      status: 'RESOLVED',
-      assignedTo: 'Threat Intel',
+      priority: TicketPriority.MEDIUM,
+      status: TicketStatus.RESOLVED,
       incidentCode: 'INC-0006',
     },
     {
@@ -177,29 +202,28 @@ async function seedTickets(incidentMap: Map<string, string>) {
       title: 'Harden API Token Rotation Policy',
       description:
         'Enforce stricter JWT expiration and automatic rotation to reduce replay attempts with stale tokens.',
-      priority: 'LOW',
-      status: 'CLOSED',
-      assignedTo: 'AppSec Team',
+      priority: TicketPriority.LOW,
+      status: TicketStatus.CLOSED,
       incidentCode: 'INC-0007',
     },
   ];
 
   for (const ticket of tickets) {
-    const incidentId = incidentMap.get(ticket.incidentCode);
+    const incident = incidentMap.get(ticket.incidentCode);
 
-    if (!incidentId) {
+    if (!incident) {
       throw new Error(`Missing incident mapping for ${ticket.incidentCode}`);
     }
 
-    await ticketClient.create({
+    await prisma.ticket.create({
       data: {
         code: ticket.code,
         title: ticket.title,
         description: ticket.description,
         priority: ticket.priority,
         status: ticket.status,
-        assignedTo: ticket.assignedTo,
-        incidentId,
+        incidentId: incident.id,
+        tenantId: incident.tenantId,
       },
     });
   }
@@ -208,13 +232,18 @@ async function seedTickets(incidentMap: Map<string, string>) {
 }
 
 async function main() {
-  const ticketClient = (prisma as any).ticket;
-
-  await ticketClient.deleteMany();
+  await prisma.ticket.deleteMany();
   await prisma.incident.deleteMany();
+  await prisma.tenant.deleteMany();
 
-  const incidents = await seedIncidents();
-  const incidentMap = new Map(incidents.map((incident) => [incident.code, incident.id]));
+  const tenantIdByClient = await seedTenants();
+  const incidents = await seedIncidents(tenantIdByClient);
+  const incidentMap = new Map(
+    incidents.map((incident) => [
+      incident.code,
+      { id: incident.id, tenantId: incident.tenantId },
+    ]),
+  );
 
   await seedTickets(incidentMap);
 }

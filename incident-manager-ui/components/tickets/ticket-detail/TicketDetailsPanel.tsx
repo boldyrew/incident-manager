@@ -9,18 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { nameInitials } from '@/lib/nameInitials';
+import { UserItem } from '@/components/user/UserItem';
+import { useTicketDetail } from '@/context/ticket-context';
+import { useFormatDateTime } from '@/hooks/useFormatDateTime';
 import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
-import type { TicketDetailModel, TicketStatus } from '@/types/ticket';
+import type { TicketStatus } from '@/types/ticket';
 import { useState } from 'react';
 
-export interface TicketDetailsCardProps {
-  ticket: TicketDetailModel;
-}
-
-export function TicketDetailsCard({ ticket }: TicketDetailsCardProps) {
+export function TicketDetailsPanel() {
+  const { ticket } = useTicketDetail();
   const [status, setStatus] = useState<TicketStatus>(ticket.status);
+  const { formatDateTime } = useFormatDateTime();
   return (
     <ContentPanel title="Ticket Details">
       <dl className="space-y-4 text-sm">
@@ -56,14 +56,13 @@ export function TicketDetailsCard({ ticket }: TicketDetailsCardProps) {
         </div>
         <div>
           <dt className="text-muted-foreground">Assigned To</dt>
-          <dd className="mt-1.5 flex items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-700 text-xs font-medium text-white">
-              {nameInitials(ticket.assignedTo ?? '-')}
-            </span>
-            <span className="font-medium text-foreground">
-              {ticket.assignedTo ? ticket.assignedTo : 'Unassigned'}
-            </span>
-          </dd>
+          {ticket.assignedUser ? (
+            <dd className="mt-1.5">
+              <UserItem user={ticket.assignedUser} />
+            </dd>
+          ) : (
+            <dd className="mt-1.5 text-muted-foreground">Unassigned</dd>
+          )}
         </div>
         {/* <div>
           <dt className="text-muted-foreground">Linked Incident</dt>
@@ -79,11 +78,11 @@ export function TicketDetailsCard({ ticket }: TicketDetailsCardProps) {
         </div> */}
         <div>
           <dt className="text-muted-foreground">Created</dt>
-          <dd className="mt-0.5 text-foreground">{ticket.createdAt}</dd>
+          <dd className="mt-0.5 text-foreground">{formatDateTime(ticket.createdAt)}</dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Last Updated</dt>
-          <dd className="mt-0.5 text-foreground">{ticket.updatedAt}</dd>
+          <dd className="mt-0.5 text-foreground">{formatDateTime(ticket.updatedAt)}</dd>
         </div>
       </dl>
     </ContentPanel>

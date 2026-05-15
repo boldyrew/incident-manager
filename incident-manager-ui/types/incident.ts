@@ -1,18 +1,19 @@
 export type IncidentSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
-export interface Incident {
+export interface IncidentBase {
   id: string;
   code: string;
   title: string;
-  description?: string;
   severity: IncidentSeverity;
   status: IncidentStatus;
   client: string;
-  assignedTo?: string;
   detectedAt: string;
-  createdAt: string;
-  updatedAt: string;
+}
+
+export interface Incident extends IncidentBase {
+  description?: string;
+  assignedTo?: string;
 }
 
 export interface CreateIncidentPayload {
