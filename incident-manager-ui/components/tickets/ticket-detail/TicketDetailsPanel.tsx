@@ -12,15 +12,22 @@ import {
 import { UserItem } from '@/components/user/UserItem';
 import { useTicketDetail } from '@/context/ticket-context';
 import { useFormatDateTime } from '@/hooks/useFormatDateTime';
+import { updateTicketStatus } from '@/lib/api';
 import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
+import { useUserRole } from '@/hooks/useUserRole';
 import type { TicketStatus } from '@/types/ticket';
-import { useState } from 'react';
 
 export function TicketDetailsPanel() {
-  const { ticket } = useTicketDetail();
-  const [status, setStatus] = useState<TicketStatus>(ticket.status);
+  const { ticket, refetch } = useTicketDetail();
   const { formatDateTime } = useFormatDateTime();
+  const { isStaffRole } = useUserRole();
+
+  const handleStatusChange = async (status: TicketStatus) => {
+    await updateTicketStatus(ticket.id, status);
+    await refetch?.();
+  };
+
   return (
     <ContentPanel title="Ticket Details">
       <dl className="space-y-4 text-sm">
@@ -40,7 +47,7 @@ export function TicketDetailsPanel() {
         <div>
           <dt className="mb-1.5 text-muted-foreground">Status</dt>
           <dd>
-            <Select value={status} onValueChange={(v) => setStatus(v as TicketStatus)}>
+            <Select value={ticket.status} onValueChange={handleStatusChange} disabled={!isStaffRole}>
               <SelectTrigger className="h-9 bg-secondary/40">
                 <SelectValue />
               </SelectTrigger>

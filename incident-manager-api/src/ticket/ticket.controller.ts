@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { LinkIncidentDto } from './dto/link-incident.dto';
+import { SetStatusDto } from './dto/set-status.dto';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
@@ -62,5 +63,12 @@ export class TicketController {
     @Body() dto: LinkIncidentDto,
   ) {
     return this.ticketService.linkIncident(id, dto.incidentId);
+  }
+
+  @Patch(':id/status')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  setStatus(@Param('id') id: string, @Body() dto: SetStatusDto) {
+    return this.ticketService.setStatus(id, dto.status);
   }
 }

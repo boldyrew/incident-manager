@@ -7,6 +7,7 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketRepository } from './ticket.repository';
 import { UsersRepository } from '../users/users.repository';
 import { TicketDetailModel } from './entities/ticket.entity';
+import { TicketStatus } from '@prisma/client';
 
 @Injectable()
 export class TicketService {
@@ -71,5 +72,10 @@ export class TicketService {
       throw new BadRequestException(`Invalid incident`);
     }
     return this.ticketRepository.update(id, { incidentId });
+  }
+
+  async setStatus(id: string, status: TicketStatus) {
+    await this.findOne(id);
+    return this.ticketRepository.update(id, { status });
   }
 }
