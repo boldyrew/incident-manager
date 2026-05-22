@@ -4,21 +4,18 @@ import PageTitle from '@/components/layout/PageTitle';
 import TicketCard from '@/components/tickets/TicketCard';
 import { TicketTenantFilter } from '@/components/tickets/TicketTenantFilter';
 import { useAuth } from '@/context/auth-context';
+import { useUserRole } from '@/hooks/useUserRole';
 import { getTickets } from '@/lib/api';
 import { TicketBase, TicketTenantSummary } from '@/types/ticket';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-function isStaffRole(role: string | undefined): boolean {
-  return role === 'ADMIN' || role === 'ANALYST';
-}
-
 export default function TicketsPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading } = useAuth();
   const [tickets, setTickets] = useState<TicketBase[]>([]);
   const [selectedTenantIds, setSelectedTenantIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const staff = isStaffRole(user?.role);
+  const { isStaffRole } = useUserRole();
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -46,11 +43,11 @@ export default function TicketsPage() {
   }, [tickets]);
 
   const visibleTickets = useMemo(() => {
-    if (!staff || selectedTenantIds.length === 0) return tickets;
+    if (!isStaffRole || selectedTenantIds.length === 0) return tickets;
     return tickets.filter((t) => t.tenant && selectedTenantIds.includes(t.tenant.id));
-  }, [tickets, staff, selectedTenantIds]);
+  }, [tickets, isStaffRole, selectedTenantIds]);
 
-  const highlightTenantStripe = staff && selectedTenantIds.length > 1;
+  const highlightTenantStripe = isStaffRole && selectedTenantIds.length > 1;
 
   if (authLoading || loading) {
     return <div>Loading...</div>;
@@ -59,7 +56,7 @@ export default function TicketsPage() {
   return (
     <>
       <PageTitle title="Tickets" subtitle="Remediation tasks linked to incidents" />
-      {staff && (
+      {isStaffRole && (
         <TicketTenantFilter
           tenants={tenants}
           selectedIds={selectedTenantIds}

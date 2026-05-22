@@ -1,5 +1,8 @@
+import { TicketPriority, TicketStatus } from '@prisma/client';
 import { IncidentBase } from 'src/incidents/entities/incident.entity';
 import { User } from 'src/users/entities/user';
+
+export { TicketPriority, TicketStatus };
 
 export interface TicketTenantSummary {
   id: string;
@@ -11,8 +14,8 @@ export interface TicketBase {
   id: string;
   code: string;
   title: string;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  priority: TicketPriority;
+  status: TicketStatus;
   incidentId: string | null;
   tenant: TicketTenantSummary | null;
   createdAt: Date;
