@@ -35,8 +35,9 @@ export class TicketController {
   update(
     @Param('id') id: string,
     @Body() updateTicketDto: UpdateTicketDto,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.ticketService.update(id, updateTicketDto);
+    return this.ticketService.update(id, updateTicketDto, user);
   }
 
   @Delete(':id')
@@ -52,7 +53,7 @@ export class TicketController {
     @Body() dto: AssignTicketDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.ticketService.assign(id, dto.userId);
+    return this.ticketService.assign(id, dto.userId, user);
   }
 
   @Patch(':id/link-incident')
@@ -61,14 +62,19 @@ export class TicketController {
   linkIncident(
     @Param('id') id: string,
     @Body() dto: LinkIncidentDto,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.ticketService.linkIncident(id, dto.incidentId);
+    return this.ticketService.linkIncident(id, dto.incidentId, user);
   }
 
   @Patch(':id/status')
   @Roles('ADMIN', 'ANALYST')
   @UseGuards(RolesGuard)
-  setStatus(@Param('id') id: string, @Body() dto: SetStatusDto) {
-    return this.ticketService.setStatus(id, dto.status);
+  setStatus(
+    @Param('id') id: string,
+    @Body() dto: SetStatusDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.setStatus(id, dto.status, user);
   }
 }

@@ -8,10 +8,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UsersRepository } from '../users/users.repository';
 import { IncidentsRepository } from 'src/incidents/incidents.repository';
+import { TicketActivityController } from './ticket-activities/ticket-activity.controller';
+import { TicketActivityService } from './ticket-activities/ticket-activity/ticket-activity.service';
+import { TicketActivityRepository } from './ticket-activities/ticket-activity/ticket-activity.repository';
+import { TicketActivityRecorder } from './ticket-activities/ticket-activity.recorder';
 
 @Module({
   imports: [AuthModule],
-  controllers: [TicketController],
+  controllers: [TicketController, TicketActivityController],
   providers: [
     TicketService,
     TicketRepository,
@@ -20,6 +24,9 @@ import { IncidentsRepository } from 'src/incidents/incidents.repository';
     RolesGuard,
     UsersRepository,
     IncidentsRepository,
+    TicketActivityService,
+    TicketActivityRepository,
+    TicketActivityRecorder,
   ],
 })
 export class TicketModule {}
