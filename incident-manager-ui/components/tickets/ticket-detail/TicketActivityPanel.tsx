@@ -1,11 +1,18 @@
 'use client';
 
-import { CheckCircle, Clock, MessageSquare, User } from 'lucide-react';
-import type { TicketActivityItem, TicketActivityType } from '@/types/ticket';
 import { ContentPanel } from '@/components/layout/ContentPanel';
 import { useFormatDateTime } from '@/hooks/useFormatDateTime';
+import {
+  getActivityActorName,
+  getActivityContent,
+  getActivityDescription,
+  getActivityVisualType,
+  type TicketActivityVisualType,
+} from '@/lib/ticketActivityDisplay';
+import type { TicketActivity } from '@/types/ticket-activity';
+import { CheckCircle, Clock, Link2, MessageSquare, Pencil, User } from 'lucide-react';
 
-function activityIcon(type: TicketActivityType) {
+function activityIcon(type: TicketActivityVisualType) {
   switch (type) {
     case 'status_change':
       return (
@@ -31,45 +38,74 @@ function activityIcon(type: TicketActivityType) {
           <User className="h-4 w-4" />
         </div>
       );
+    case 'updated':
+      return (
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-300 ring-4 ring-card">
+          <Pencil className="h-4 w-4" />
+        </div>
+      );
     default:
-      return null;
+      return (
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-card">
+          <Link2 className="h-4 w-4" />
+        </div>
+      );
   }
 }
 
 export interface TicketActivityPanelProps {
-  items: TicketActivityItem[];
+  activities: TicketActivity[];
+  loading?: boolean;
+  error?: string | null;
 }
 
-export function TicketActivityPanel({ items }: TicketActivityPanelProps) {
+export function TicketActivityPanel({ activities, loading, error }: TicketActivityPanelProps) {
   const { formatDateTime } = useFormatDateTime();
+
   return (
-    <ContentPanel title='Activity'>
-      <div className="relative">
-        <div className="absolute bottom-6 left-[17px] top-2 w-px bg-border" aria-hidden />
-        <ul className="relative space-y-6">
-          {items.map((item) => (
-            <li key={item.id} className="flex gap-4">
-              <div className="relative z-[1] shrink-0">{activityIcon(item.type)}</div>
-              <div className="min-w-0 flex-1 pt-0.5">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <p className="text-sm text-foreground">
-                    <span className="font-semibold">{item.user}</span>
-                    <span className="text-muted-foreground"> • {item.action}</span>
-                  </p>
-                  <time className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                    {formatDateTime(item.timestamp)}
-                  </time>
-                </div>
-                {item.content ? (
-                  <div className="mt-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground/90">
-                    {item.content}
+    <ContentPanel title="Activity">
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading activity…</p>
+      ) : error ? (
+        <p className="text-sm text-destructive">{error}</p>
+      ) : activities.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No activity yet.</p>
+      ) : (
+        <div className="relative">
+          <div className="absolute bottom-6 left-[17px] top-2 w-px bg-border" aria-hidden />
+          <ul className="relative space-y-6">
+            {activities.map((activity) => {
+              const content = getActivityContent(activity);
+              const visualType = getActivityVisualType(activity.type);
+
+              return (
+                <li key={activity.id} className="flex gap-4">
+                  <div className="relative z-[1] shrink-0">{activityIcon(visualType)}</div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                      <p className="text-sm text-foreground">
+                        <span className="font-semibold">{getActivityActorName(activity)}</span>
+                        <span className="text-muted-foreground">
+                          {' '}
+                          • {getActivityDescription(activity)}
+                        </span>
+                      </p>
+                      <time className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                        {formatDateTime(activity.createdAt)}
+                      </time>
+                    </div>
+                    {content ? (
+                      <div className="mt-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground/90">
+                        {content}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </ContentPanel>
   );
 }

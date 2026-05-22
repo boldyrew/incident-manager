@@ -1,5 +1,6 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
 import { TicketBase, TicketDetailModel, TicketStatus } from '@/types/ticket';
+import type { TicketActivity } from '@/types/ticket-activity';
 import { User } from '@/types/user';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -69,6 +70,10 @@ export async function getTickets(): Promise<TicketBase[]> {
 
 export async function getTicket(id: string): Promise<TicketDetailModel> {
   return request<TicketDetailModel>(`/tickets/${id}`);
+}
+
+export async function getTicketActivities(ticketId: string): Promise<TicketActivity[]> {
+  return request<TicketActivity[]>(`/tickets/${ticketId}/activities`);
 }
 
 export async function getAnalysts(): Promise<User[]> {

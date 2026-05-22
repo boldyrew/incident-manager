@@ -20,7 +20,7 @@ export interface TicketReassignDialogProps {
 }
 
 export function TicketReassignDialog({ open, onOpenChange }: TicketReassignDialogProps) {
-  const { ticket, refetch } = useTicketDetail();
+  const { ticket, refetch, refetchActivities } = useTicketDetail();
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -42,7 +42,7 @@ export function TicketReassignDialog({ open, onOpenChange }: TicketReassignDialo
     const choice = selectedUserId ?? USER_SELECT_UNASSIGNED;
     const userId = choice === USER_SELECT_UNASSIGNED ? null : choice;
     await assignTicket(ticket.id, userId);
-    await refetch?.();
+    await Promise.all([refetch(), refetchActivities()]);
     onOpenChange(false);
     setSelectedUserId(undefined);
   }
