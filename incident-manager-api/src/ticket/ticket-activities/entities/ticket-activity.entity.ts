@@ -1,6 +1,7 @@
-import { TicketActivityType, TicketPriority, TicketStatus } from '@prisma/client';
+import { IncidentBase } from "src/incidents/entities/incident.entity";
+import { TicketPriority, TicketStatus } from "src/ticket/entities/ticket.entity";
+import { UserBase } from "src/users/entities/user";
 
-export { TicketActivityType };
 
 export interface TicketActivityActor {
   id: string;
@@ -34,13 +35,19 @@ export interface PriorityUpdatedMetadata {
 }
 
 export interface AssigneeUpdatedMetadata {
-  fromUserId: string | null;
-  toUserId: string | null;
+  assignedUserId: string | null;
+}
+
+export interface AssigneeUpdatedEnrichedMetadata extends AssigneeUpdatedMetadata {
+  assignedUser: UserBase | null;
 }
 
 export interface IncidentLinkedMetadata {
-  fromIncidentId: string | null;
-  toIncidentId: string | null;
+  incidentId: string | null;
+}
+
+export interface IncidentLinkedEnrichedMetadata extends IncidentLinkedMetadata {
+  incident: IncidentBase | null;
 }
 
 export interface CommentAddedMetadata {
@@ -57,6 +64,17 @@ export interface TitleUpdatedMetadata {
   to: string;
 }
 
+export enum TicketActivityType {
+  TICKET_OPENED = 'TICKET_OPENED',
+  STATUS_UPDATED = 'STATUS_UPDATED',
+  PRIORITY_UPDATED = 'PRIORITY_UPDATED',
+  ASSIGNEE_UPDATED = 'ASSIGNEE_UPDATED',
+  INCIDENT_LINKED = 'INCIDENT_LINKED',
+  COMMENT_ADDED = 'COMMENT_ADDED',
+  DESCRIPTION_UPDATED = 'DESCRIPTION_UPDATED',
+  TITLE_UPDATED = 'TITLE_UPDATED',
+}
+
 export type TicketActivity =
   | (TicketActivityBase & { type: 'TICKET_OPENED'; metadata: TicketOpenedMetadata })
   | (TicketActivityBase & { type: 'STATUS_UPDATED'; metadata: StatusUpdatedMetadata })
@@ -66,3 +84,8 @@ export type TicketActivity =
   | (TicketActivityBase & { type: 'COMMENT_ADDED'; metadata: CommentAddedMetadata })
   | (TicketActivityBase & { type: 'DESCRIPTION_UPDATED'; metadata: DescriptionUpdatedMetadata })
   | (TicketActivityBase & { type: 'TITLE_UPDATED'; metadata: TitleUpdatedMetadata });
+
+export type TicketActivityEnriched =
+  | Exclude<TicketActivity, { type: 'INCIDENT_LINKED' | 'ASSIGNEE_UPDATED' }>
+  | (TicketActivityBase & { type: 'INCIDENT_LINKED'; metadata: IncidentLinkedEnrichedMetadata })
+  | (TicketActivityBase & { type: 'ASSIGNEE_UPDATED'; metadata: AssigneeUpdatedEnrichedMetadata });

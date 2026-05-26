@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TicketPriority, TicketStatus } from '@prisma/client';
+import { TicketPriority, TicketStatus } from '../entities/ticket.entity';
 import { TicketActivity } from './entities/ticket-activity.entity';
 import {
   createAssigneeUpdatedActivity,
@@ -54,27 +54,20 @@ export class TicketActivityRecorder {
   recordAssigneeUpdated(
     ticketId: string,
     userId: string | null | undefined,
-    fromUserId: string | null,
-    toUserId: string | null,
+    assignedUserId: string | null,
   ): Promise<TicketActivity | null> {
-    if (fromUserId === toUserId) return Promise.resolve(null);
     return this.ticketActivityRepository.create(
-      createAssigneeUpdatedActivity(ticketId, userId, { fromUserId, toUserId }),
+      createAssigneeUpdatedActivity(ticketId, userId, { assignedUserId }),
     );
   }
 
   recordIncidentLinked(
     ticketId: string,
     userId: string | null | undefined,
-    fromIncidentId: string | null,
-    toIncidentId: string | null,
+    incidentId: string | null,
   ): Promise<TicketActivity | null> {
-    if (fromIncidentId === toIncidentId) return Promise.resolve(null);
     return this.ticketActivityRepository.create(
-      createIncidentLinkedActivity(ticketId, userId, {
-        fromIncidentId,
-        toIncidentId,
-      }),
+      createIncidentLinkedActivity(ticketId, userId, { incidentId }),
     );
   }
 

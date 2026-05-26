@@ -46,7 +46,7 @@ export class TicketService {
     const before = await this.findOne(id);
     const ticket = await this.ticketRepository.update(id, updateTicketDto);
     const after = await this.findOne(id);
-    await this.recordUpdateActivities(id, actor?.sub, before, after);
+    // await this.recordUpdateActivities(id, actor?.sub, before, after);
     return ticket;
   }
 
@@ -55,128 +55,96 @@ export class TicketService {
     return this.ticketRepository.delete(id);
   }
 
-  async assign(
-    id: string,
-    userId: string | null | undefined,
-    actor?: AuthenticatedUser,
-  ) {
-    const before = await this.findOne(id);
+  async assign(id: string, userId: string | null | undefined, actor?: AuthenticatedUser) {
     if (userId === undefined) {
       throw new BadRequestException('userId is required (use null to clear assignment)');
     }
     if (userId === null || userId === '') {
       const ticket = await this.ticketRepository.update(id, { assignedUserId: null });
-      await this.ticketActivityRecorder.recordAssigneeUpdated(
-        id,
-        actor?.sub,
-        before.assignedUser?.id ?? null,
-        null,
-      );
+      await this.ticketActivityRecorder.recordAssigneeUpdated(id, actor?.sub, null);
       return ticket;
     }
-    const targetUser = await this.usersRepository.findByUserId(userId);
+
+    const targetUser = await this.usersRepository.findById(userId);
     if (targetUser.role !== 'ANALYST')
       throw new BadRequestException(`User ${userId} is not an analyst`);
+
     const ticket = await this.ticketRepository.update(id, { assignedUserId: userId });
-    await this.ticketActivityRecorder.recordAssigneeUpdated(
-      id,
-      actor?.sub,
-      before.assignedUser?.id ?? null,
-      userId,
-    );
+    await this.ticketActivityRecorder.recordAssigneeUpdated(id, actor?.sub, userId);
+
     return ticket;
   }
 
-  async linkIncident(
-    id: string,
-    incidentId: string | null,
-    actor?: AuthenticatedUser,
-  ) {
+  async linkIncident(id: string, incidentId: string | null, actor?: AuthenticatedUser) {
     if (incidentId === undefined) {
       throw new BadRequestException('incidentId is required (use null to clear link)');
     }
-
-    const before = await this.findOne(id);
     if (incidentId === null || incidentId === '') {
       const ticket = await this.ticketRepository.update(id, { incidentId: null });
-      await this.ticketActivityRecorder.recordIncidentLinked(
-        id,
-        actor?.sub,
-        before.incidentId,
-        null,
-      );
+      await this.ticketActivityRecorder.recordIncidentLinked(id, actor?.sub, null);
       return ticket;
     }
 
     const incident = await this.incidentsRepository.findById(incidentId);
-    if (incident && before.tenant && incident.tenant.id !== before.tenant.id) {
+    const ticket = await this.ticketRepository.findById(id);
+    if (incident && incident.tenant.id !== ticket.tenant.id) {
       throw new BadRequestException(`Invalid incident`);
     }
-    const ticket = await this.ticketRepository.update(id, { incidentId });
-    await this.ticketActivityRecorder.recordIncidentLinked(
-      id,
-      actor?.sub,
-      before.incidentId,
-      incidentId,
-    );
+    await this.ticketRepository.update(id, { incidentId });
+    await this.ticketActivityRecorder.recordIncidentLinked(id, actor?.sub, incidentId);
     return ticket;
   }
 
   async setStatus(id: string, status: TicketStatus, actor?: AuthenticatedUser) {
     const before = await this.findOne(id);
     const ticket = await this.ticketRepository.update(id, { status });
-    await this.ticketActivityRecorder.recordStatusUpdated(
-      id,
-      actor?.sub,
-      before.status,
-      status,
-    );
+    await this.ticketActivityRecorder.recordStatusUpdated(id, actor?.sub, before.status, status);
     return ticket;
   }
 
-  private async recordUpdateActivities(
-    ticketId: string,
-    actorId: string | undefined,
-    before: TicketDetailModel,
-    after: TicketDetailModel,
-  ) {
-    await Promise.all([
-      this.ticketActivityRecorder.recordTitleUpdated(
-        ticketId,
-        actorId,
-        before.title,
-        after.title,
-      ),
-      this.ticketActivityRecorder.recordDescriptionUpdated(
-        ticketId,
-        actorId,
-        before.description,
-        after.description,
-      ),
-      this.ticketActivityRecorder.recordPriorityUpdated(
-        ticketId,
-        actorId,
-        before.priority,
-        after.priority,
-      ),
-      this.ticketActivityRecorder.recordStatusUpdated(
-        ticketId,
-        actorId,
-        before.status,
-        after.status,
-      ),
-      this.ticketActivityRecorder.recordAssigneeUpdated(
-        ticketId,
-        actorId,
-        before.assignedUser?.id ?? null,
-        after.assignedUser?.id ?? null,
-      ),
-      this.ticketActivityRecorder.recordIncidentLinked(
-        ticketId,
-        actorId,
-        before.incidentId,
-        after.incidentId,
-      ),
-    ]);
-  }
+  // private async recordUpdateActivities(
+  //   ticketId: string,
+  //   actorId: string | undefined,
+  //   before: TicketDetailModel,
+  //   after: TicketDetailModel,
+  // ) {
+  //   await Promise.all([
+  //     this.ticketActivityRecorder.recordTitleUpdated(
+  //       ticketId,
+  //       actorId,
+  //       before.title,
+  //       after.title,
+  //     ),
+  //     this.ticketActivityRecorder.recordDescriptionUpdated(
+  //       ticketId,
+  //       actorId,
+  //       before.description,
+  //       after.description,
+  //     ),
+  //     this.ticketActivityRecorder.recordPriorityUpdated(
+  //       ticketId,
+  //       actorId,
+  //       before.priority,
+  //       after.priority,
+  //     ),
+  //     this.ticketActivityRecorder.recordStatusUpdated(
+  //       ticketId,
+  //       actorId,
+  //       before.status,
+  //       after.status,
+  //     ),
+  //     this.ticketActivityRecorder.recordAssigneeUpdated(
+  //       ticketId,
+  //       actorId,
+  //       before.assignedUser?.id ?? null,
+  //       after.assignedUser?.id ?? null,
+  //     ),
+  //     this.ticketActivityRecorder.recordIncidentLinked(
+  //       ticketId,
+  //       actorId,
+  //       before.incidentId,
+  //       after.incidentId,
+  //     ),
+  //   ]);
+  // }
 }

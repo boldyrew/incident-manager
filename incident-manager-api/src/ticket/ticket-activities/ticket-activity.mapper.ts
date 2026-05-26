@@ -1,5 +1,5 @@
-import { Prisma, TicketActivityType } from '@prisma/client';
-import { TicketActivity, TicketActivityActor } from './entities/ticket-activity.entity';
+import { Prisma } from '@prisma/client';
+import { TicketActivity, TicketActivityActor, TicketActivityType } from './entities/ticket-activity.entity';
 import {
   parseAssigneeUpdatedMetadata,
   parseCommentAddedMetadata,
@@ -112,6 +112,6 @@ export function parseTicketActivity(record: TicketActivityRecord): TicketActivit
         metadata: parseTitleUpdatedMetadata(metadata),
       };
     default:
-      return assertNever(record.type);
+      return assertNever(record.type as never);
   }
 }

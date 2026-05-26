@@ -1,4 +1,4 @@
-import { Prisma, TicketPriority, TicketStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   AssigneeUpdatedMetadata,
   CommentAddedMetadata,
@@ -17,7 +17,7 @@ function toActivityMetadata(metadata: object): Prisma.InputJsonValue {
 }
 
 function baseInput(ticketId: string, userId: string | null | undefined): Pick<
-  ActivityCreateInput,
+  Prisma.TicketActivityUncheckedCreateInput,
   'ticketId' | 'userId'
 > {
   return {
@@ -70,13 +70,10 @@ export function createAssigneeUpdatedActivity(
   userId: string | null | undefined,
   metadata: AssigneeUpdatedMetadata,
 ): ActivityCreateInput {
-  const fromLabel = metadata.fromUserId ?? 'unassigned';
-  const toLabel = metadata.toUserId ?? 'unassigned';
   return {
     ...baseInput(ticketId, userId),
     type: 'ASSIGNEE_UPDATED',
     metadata: toActivityMetadata(metadata),
-    plainData: `Assignee changed from ${fromLabel} to ${toLabel}`,
   };
 }
 
@@ -85,13 +82,10 @@ export function createIncidentLinkedActivity(
   userId: string | null | undefined,
   metadata: IncidentLinkedMetadata,
 ): ActivityCreateInput {
-  const fromLabel = metadata.fromIncidentId ?? 'none';
-  const toLabel = metadata.toIncidentId ?? 'none';
   return {
     ...baseInput(ticketId, userId),
     type: 'INCIDENT_LINKED',
     metadata: toActivityMetadata(metadata),
-    plainData: `Incident link changed from ${fromLabel} to ${toLabel}`,
   };
 }
 

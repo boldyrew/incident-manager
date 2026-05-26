@@ -8,11 +8,12 @@ import {
   TicketActivityRecord,
 } from '../ticket-activity.mapper';
 
+
 @Injectable()
 export class TicketActivityRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Prisma.TicketActivityUncheckedCreateInput): Promise<TicketActivity> {
+  async create(data: Prisma.TicketActivityCreateInput): Promise<TicketActivity> {
     const record = await this.prisma.ticketActivity.create({
       data,
       select: ticketActivitySelect,
@@ -26,7 +27,7 @@ export class TicketActivityRepository {
       orderBy: { createdAt: 'desc' },
       select: ticketActivitySelect,
     });
-    return records.map((record) => parseTicketActivity(record));
+    return records.map((record: TicketActivityRecord) => parseTicketActivity(record));
   }
 
   async createMany(data: Prisma.TicketActivityUncheckedCreateInput[]): Promise<TicketActivity[]> {

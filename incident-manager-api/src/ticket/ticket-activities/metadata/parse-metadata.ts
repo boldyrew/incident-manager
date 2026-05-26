@@ -79,16 +79,14 @@ export function parsePriorityUpdatedMetadata(raw: unknown): PriorityUpdatedMetad
 export function parseAssigneeUpdatedMetadata(raw: unknown): AssigneeUpdatedMetadata {
   if (!isRecord(raw)) throw new Error('Invalid ASSIGNEE_UPDATED metadata');
   return {
-    fromUserId: parseNullableUserId(raw.fromUserId, 'fromUserId'),
-    toUserId: parseNullableUserId(raw.toUserId, 'toUserId'),
+    assignedUserId: parseNullableUserId(raw.assignedUserId, 'assignedUserId'),
   };
 }
 
 export function parseIncidentLinkedMetadata(raw: unknown): IncidentLinkedMetadata {
   if (!isRecord(raw)) throw new Error('Invalid INCIDENT_LINKED metadata');
   return {
-    fromIncidentId: parseNullableUserId(raw.fromIncidentId, 'fromIncidentId'),
-    toIncidentId: parseNullableUserId(raw.toIncidentId, 'toIncidentId'),
+    incidentId: parseNullableUserId(raw.incidentId, 'incidentId'),
   };
 }
 
