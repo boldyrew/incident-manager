@@ -90,7 +90,7 @@ export function IncidentsTable({ incidents, loading, onEdit, onDelete }: Inciden
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{incident.client}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {incident.assignedTo ?? (
+                    {incident.assignedUser?.fullName ?? (
                       <span className="italic text-muted-foreground/50">Unassigned</span>
                     )}
                   </TableCell>

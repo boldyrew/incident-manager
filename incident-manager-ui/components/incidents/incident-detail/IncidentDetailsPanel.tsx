@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { UserItem } from '@/components/user/UserItem';
 import { useIncidentDetail } from '@/context/incident-context';
 import { useFormatDateTime } from '@/hooks/useFormatDateTime';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -72,13 +73,13 @@ export function IncidentDetailsPanel() {
         </div>
         <div>
           <dt className="text-muted-foreground">Assigned To</dt>
-          <dd className="mt-0.5">
-            {incident.assignedTo ? (
-              <span className="text-foreground">{incident.assignedTo}</span>
-            ) : (
-              <span className="italic text-muted-foreground/50">Unassigned</span>
-            )}
-          </dd>
+          {incident.assignedUser ? (
+            <dd className="mt-1.5">
+              <UserItem user={incident.assignedUser} />
+            </dd>
+          ) : (
+            <dd className="mt-1.5 text-muted-foreground">Unassigned</dd>
+          )}
         </div>
         <div>
           <dt className="text-muted-foreground">Detected At</dt>
