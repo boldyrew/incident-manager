@@ -19,13 +19,13 @@ import { useUserRole } from '@/hooks/useUserRole';
 import type { TicketStatus } from '@/types/ticket';
 
 export function TicketDetailsPanel() {
-  const { ticket, refetch } = useTicketDetail();
+  const { ticket, refetch, refetchActivities } = useTicketDetail();
   const { formatDateTime } = useFormatDateTime();
   const { isStaffRole } = useUserRole();
 
   const handleStatusChange = async (status: TicketStatus) => {
     await updateTicketStatus(ticket.id, status);
-    await refetch?.();
+    await Promise.all([refetch(), refetchActivities()]);
   };
 
   return (

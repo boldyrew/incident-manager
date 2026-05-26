@@ -28,14 +28,3 @@ export interface TicketDetailModel extends TicketBase {
   description: string;
   assignedUser: Pick<User, 'id' | 'fullName' | 'email'> | null;
 }
-
-export type TicketActivityType = 'created' | 'assigned' | 'status_change' | 'comment';
-
-export interface TicketActivityItem {
-  id: number;
-  type: TicketActivityType;
-  user: string;
-  action: string;
-  timestamp: string;
-  content?: string;
-}

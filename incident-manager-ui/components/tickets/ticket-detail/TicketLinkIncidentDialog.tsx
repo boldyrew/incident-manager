@@ -29,7 +29,7 @@ export interface TicketLinkIncidentDialogProps {
 }
 
 export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncidentDialogProps) {
-  const { ticket, refetch } = useTicketDetail();
+  const { ticket, refetch, refetchActivities } = useTicketDetail();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | undefined>(undefined);
   const [incidents, setIncidents] = useState<Incident[]>([]);
 
@@ -53,7 +53,7 @@ export function TicketLinkIncidentDialog({ open, onOpenChange }: TicketLinkIncid
   async function handleConfirmLink() {
     if (!selectedIncidentId) return;
     await linkIncident(ticket.id, selectedIncidentId);
-    await refetch?.();
+    await Promise.all([refetch(), refetchActivities()]);
     onOpenChange(false);
     setSelectedIncidentId(undefined);
   }

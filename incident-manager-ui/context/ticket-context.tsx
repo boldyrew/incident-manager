@@ -7,6 +7,7 @@ export interface TicketDetailContextValue {
   ticketId: string;
   ticket: TicketDetailModel;
   refetch: () => Promise<void>;
+  refetchActivities: () => Promise<void>;
 }
 
 const TicketDetailContext = createContext<TicketDetailContextValue | null>(null);
@@ -15,15 +16,17 @@ export function TicketDetailProvider({
   ticketId,
   ticket,
   refetch,
+  refetchActivities,
   children,
 }: {
   ticketId: string;
   ticket: TicketDetailModel;
   refetch: () => Promise<void>;
+  refetchActivities: () => Promise<void>;
   children: ReactNode;
 }) {
   return (
-    <TicketDetailContext.Provider value={{ ticketId, ticket, refetch }}>
+    <TicketDetailContext.Provider value={{ ticketId, ticket, refetch, refetchActivities }}>
       {children}
     </TicketDetailContext.Provider>
   );

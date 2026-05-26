@@ -31,24 +31,56 @@ model Incident {
 }
 
 model Ticket {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code            String         @unique
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code            String                @unique
   title           String
   description     String?
-  priority        TicketPriority @default(MEDIUM)
-  status          TicketStatus   @default(OPEN)
-  incidentId      String?        @db.Uuid
-  incident        Incident?      @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  priority        TicketPriority        @default(MEDIUM)
+  status          TicketStatus          @default(OPEN)
+  incidentId      String?               @db.Uuid
+  incident        Incident?             @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
 
-  assignedUserId  String?        @db.Uuid
-  assignee        User?          @relation("TicketAssignee", fields: [assignedUserId], references: [id])
+  assignedUserId  String?               @db.Uuid
+  assignee        User?                 @relation("TicketAssignee", fields: [assignedUserId], references: [id])
 
-  tenantId        String?        @db.Uuid
-  tenant          Tenant?        @relation(fields: [tenantId], references: [id])
+  tenantId        String?               @db.Uuid
+  tenant          Tenant?               @relation(fields: [tenantId], references: [id])
+
+  activities      TicketActivity[]      @relation("TicketActivityTicket")
 
   @@map("tickets")
+}
+
+model TicketActivity {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type            TicketActivityType
+
+  userId          String?               @db.Uuid
+  user            User?                 @relation("TicketActivityUser", fields: [userId], references: [id])
+
+  ticketId        String?               @db.Uuid
+  ticket          Ticket?               @relation("TicketActivityTicket",fields: [ticketId], references: [id])
+  
+  plainData       String?
+  metadata        Json?    
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("ticket_activities")
+}
+
+enum TicketActivityType {
+  TICKET_OPENED
+  STATUS_UPDATED
+  PRIORITY_UPDATED
+  ASSIGNEE_UPDATED
+  INCIDENT_LINKED
+  COMMENT_ADDED
+  DESCRIPTION_UPDATED
+  TITLE_UPDATED
 }
 
 enum IncidentSeverity {
@@ -100,20 +132,22 @@ model Tenant {
 }
 
 model User {
-  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email             String     @unique
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email             String            @unique
   passwordHash      String
   fullName          String
   role              UserRole
 
-  tenantId          String?    @db.Uuid
-  tenant            Tenant?    @relation(fields: [tenantId], references: [id])
+  tenantId          String?           @db.Uuid
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id])
 
-  assignedIncidents Incident[] @relation("IncidentAssignee")
-  assignedTickets   Ticket[]   @relation("TicketAssignee")
+  assignedIncidents Incident[]        @relation("IncidentAssignee")
+  assignedTickets   Ticket[]          @relation("TicketAssignee")
 
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  activities        TicketActivity[]  @relation("TicketActivityUser")
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   @@map("users")
 }
