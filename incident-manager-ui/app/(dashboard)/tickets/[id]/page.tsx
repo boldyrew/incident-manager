@@ -1,7 +1,7 @@
 'use client';
 
 import { TicketActionsPanel } from '@/components/tickets/ticket-detail/TicketActionsPanel';
-import { TicketActivityPanel } from '@/components/tickets/ticket-detail/TicketActivityPanel';
+import { TicketActivityPanel } from '@/components/tickets/ticket-detail/ticket-activity/TicketActivityPanel';
 import { TicketBackLink } from '@/components/tickets/ticket-detail/TicketBackLink';
 import { TicketCommentForm } from '@/components/tickets/ticket-detail/TicketCommentForm';
 import { TicketDetailsPanel } from '@/components/tickets/ticket-detail/TicketDetailsPanel';

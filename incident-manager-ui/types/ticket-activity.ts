@@ -1,4 +1,5 @@
 import type { TicketPriority, TicketStatus } from './ticket';
+import { UserBase } from './user';
 
 export type TicketActivityType =
   | 'TICKET_OPENED'
@@ -42,8 +43,8 @@ export interface PriorityUpdatedMetadata {
 }
 
 export interface AssigneeUpdatedMetadata {
-  fromUserId: string | null;
-  toUserId: string | null;
+  assignedUserId: string | null;
+  assignedUser: UserBase | null;
 }
 
 export interface IncidentLinkedMetadata {
