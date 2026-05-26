@@ -20,6 +20,7 @@ model Incident {
   assignee       User?            @relation("IncidentAssignee", fields: [assignedUserId], references: [id])
 
   detectedAt     DateTime
+  resolvedAt     DateTime?
   tickets        Ticket[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -118,17 +119,31 @@ enum UserRole {
 }
 
 model Tenant {
-  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
-  alias     String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  alias     String       @unique
+  industry  String?
+  tier      TenantTier   @default(PROFESSIONAL)
+  status    TenantStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   users     User[]
   incidents Incident[]
   tickets   Ticket[]
 
   @@map("tenants")
+}
+
+enum TenantTier {
+  ENTERPRISE
+  PROFESSIONAL
+  STARTER
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
 }
 
 model User {

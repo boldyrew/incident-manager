@@ -11,6 +11,7 @@ export interface IncidentBase {
   severity: IncidentSeverity;
   status: IncidentStatus;
   detectedAt: Date;
+  resolvedAt: Date | null;
 }
 
 export interface Incident extends IncidentBase {

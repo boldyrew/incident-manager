@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-export type UserRole = 'ADMIN' | 'ANALYST' | 'VIEWER';
+export type UserRole = 'ADMIN' | 'ANALYST' | 'CLIENT_USER';
 
 export interface AuthUser {
   id: string;

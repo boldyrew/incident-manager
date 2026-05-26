@@ -149,6 +149,7 @@ export class TicketRepository {
             status: ticket.incident.status,
             severity: ticket.incident.severity,
             detectedAt: ticket.incident.detectedAt,
+            resolvedAt: ticket.incident.resolvedAt ?? null,
           }
         : null,
     };

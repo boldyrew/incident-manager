@@ -21,7 +21,7 @@ const navItems = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
-    disabled: true,
+    disabled: false,
   },
   {
     href: '/incidents',
@@ -36,7 +36,7 @@ const navItems = [
     disabled: false,
   },
   { href: '/reports', label: 'Reports', icon: FileText, disabled: true },
-  { href: '/clients', label: 'Clients', icon: Building2, disabled: true },
+  { href: '/clients', label: 'Clients', icon: Building2, disabled: false },
   { href: '/settings', label: 'Settings', icon: Settings, disabled: true },
 ];
 

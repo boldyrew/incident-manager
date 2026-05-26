@@ -2,6 +2,8 @@ import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/
 import { TicketBase, TicketDetailModel, TicketStatus } from '@/types/ticket';
 import type { TicketActivity } from '@/types/ticket-activity';
 import { User } from '@/types/user';
+import { Tenant, TenantStats, CreateTenantPayload } from '@/types/tenant';
+import { DashboardStats, RecentIncident } from '@/types/dashboard';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -105,5 +107,34 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus)
   return request<void>(`/tickets/${ticketId}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function getDashboardStats(tenantId?: string): Promise<DashboardStats> {
+  const q = new URLSearchParams();
+  if (tenantId) q.set('tenantId', tenantId);
+  const qs = q.toString();
+  return request<DashboardStats>(`/dashboard/stats${qs ? `?${qs}` : ''}`);
+}
+
+export async function getRecentIncidents(tenantId?: string): Promise<RecentIncident[]> {
+  const q = new URLSearchParams();
+  if (tenantId) q.set('tenantId', tenantId);
+  const qs = q.toString();
+  return request<RecentIncident[]>(`/dashboard/recent-incidents${qs ? `?${qs}` : ''}`);
+}
+
+export async function getTenants(): Promise<Tenant[]> {
+  return request<Tenant[]>('/tenants');
+}
+
+export async function getTenantStats(): Promise<TenantStats> {
+  return request<TenantStats>('/tenants/stats');
+}
+
+export async function createTenant(data: CreateTenantPayload): Promise<Tenant> {
+  return request<Tenant>('/tenants', {
+    method: 'POST',
+    body: JSON.stringify(data),
   });
 }
