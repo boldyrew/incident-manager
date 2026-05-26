@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -74,7 +75,12 @@ export function IncidentsTable({ incidents, loading, onEdit, onDelete }: Inciden
                     {incident.code}
                   </TableCell>
                   <TableCell className="font-medium text-foreground max-w-xs">
-                    <span className="line-clamp-1">{incident.title}</span>
+                    <Link
+                      href={`/incidents/${incident.id}`}
+                      className="line-clamp-1 hover:text-blue-400 transition-colors"
+                    >
+                      {incident.title}
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <SeverityBadge severity={incident.severity} />
@@ -84,7 +90,7 @@ export function IncidentsTable({ incidents, loading, onEdit, onDelete }: Inciden
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{incident.client}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {incident.assignedTo ?? (
+                    {incident.assignedUser?.fullName ?? (
                       <span className="italic text-muted-foreground/50">Unassigned</span>
                     )}
                   </TableCell>

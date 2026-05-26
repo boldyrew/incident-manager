@@ -17,8 +17,11 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { IncidentSeverity, IncidentStatus } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { AssignIncidentDto } from './dto/assign-incident.dto';
 
 @Controller('incidents')
 @UseGuards(JwtAuthGuard)
@@ -52,6 +55,13 @@ export class IncidentsController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateIncidentDto) {
     return this.incidentsService.update(id, dto);
+  }
+
+  @Patch(':id/assign')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  assign(@Param('id') id: string, @Body() dto: AssignIncidentDto) {
+    return this.incidentsService.assign(id, dto.userId);
   }
 
   @Delete(':id')

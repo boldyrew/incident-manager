@@ -64,6 +64,13 @@ export async function deleteIncident(id: string): Promise<void> {
   return request<void>(`/incidents/${id}`, { method: 'DELETE' });
 }
 
+export async function assignIncident(incidentId: string, userId: string | null): Promise<void> {
+  return request<void>(`/incidents/${incidentId}/assign`, {
+    method: 'PATCH',
+    body: JSON.stringify({ userId }),
+  });
+}
+
 export async function getTickets(): Promise<TicketBase[]> {
   return request<TicketBase[]>(`/tickets`);
 }

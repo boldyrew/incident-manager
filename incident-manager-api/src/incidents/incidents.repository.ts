@@ -32,6 +32,7 @@ export const incidentSelect = {
   severity: true,
   status: true,
   client: true,
+  assignee: { select: { id: true, fullName: true, email: true } },
   tenant: { select: tenantSelect },
   detectedAt: true,
   createdAt: true,
@@ -132,8 +133,16 @@ export class IncidentsRepository {
       code: incident.code,
       title: incident.title,
       description: incident.description,
+      client: incident.client,
       severity: incident.severity,
       status: incident.status,
+      assignedUser: incident.assignee
+        ? {
+            id: incident.assignee.id,
+            fullName: incident.assignee.fullName,
+            email: incident.assignee.email,
+          }
+        : null,
       detectedAt: incident.detectedAt,
       tenant: incident.tenant
         ? { id: incident.tenant.id, name: incident.tenant.name, alias: incident.tenant.alias }

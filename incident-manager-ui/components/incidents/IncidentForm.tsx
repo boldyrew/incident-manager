@@ -45,7 +45,6 @@ const blank: CreateIncidentPayload = {
   severity: 'MEDIUM',
   status: 'OPEN',
   client: '',
-  assignedTo: '',
   detectedAt: '',
 };
 
@@ -66,7 +65,6 @@ export function IncidentForm({ open, incident, onClose, onSuccess }: IncidentFor
           severity: incident.severity,
           status: incident.status,
           client: incident.client,
-          assignedTo: incident.assignedTo ?? '',
           detectedAt: toLocalDatetimeValue(incident.detectedAt),
         });
       } else {
@@ -87,7 +85,6 @@ export function IncidentForm({ open, incident, onClose, onSuccess }: IncidentFor
       const payload: CreateIncidentPayload = {
         ...form,
         description: form.description || undefined,
-        assignedTo: form.assignedTo || undefined,
         detectedAt: new Date(form.detectedAt).toISOString(),
       };
 
@@ -180,16 +177,6 @@ export function IncidentForm({ open, incident, onClose, onSuccess }: IncidentFor
               onChange={(e) => set({ client: e.target.value })}
               placeholder="Client name"
               required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="assignedTo">Assigned To</Label>
-            <Input
-              id="assignedTo"
-              value={form.assignedTo}
-              onChange={(e) => set({ assignedTo: e.target.value })}
-              placeholder="Analyst name (optional)"
             />
           </div>
 

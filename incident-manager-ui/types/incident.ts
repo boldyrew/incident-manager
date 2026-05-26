@@ -1,3 +1,5 @@
+import { UserBase } from './user';
+
 export type IncidentSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
 
@@ -13,7 +15,7 @@ export interface IncidentBase {
 
 export interface Incident extends IncidentBase {
   description?: string;
-  assignedTo?: string;
+  assignedUser: UserBase | null;
 }
 
 export interface CreateIncidentPayload {
@@ -22,7 +24,6 @@ export interface CreateIncidentPayload {
   severity: IncidentSeverity;
   status: IncidentStatus;
   client: string;
-  assignedTo?: string;
   detectedAt: string;
 }
 
