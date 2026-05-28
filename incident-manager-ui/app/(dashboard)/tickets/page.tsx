@@ -1,12 +1,15 @@
 'use client';
 
 import PageTitle from '@/components/layout/PageTitle';
+import { CreateTicketDialog } from '@/components/tickets/CreateTicketDialog';
 import TicketCard from '@/components/tickets/TicketCard';
 import { TicketTenantFilter } from '@/components/tickets/TicketTenantFilter';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useUserRole } from '@/hooks/useUserRole';
 import { getTickets } from '@/lib/api';
 import { TicketBase, TicketTenantSummary } from '@/types/ticket';
+import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export default function TicketsPage() {
@@ -14,6 +17,7 @@ export default function TicketsPage() {
   const [tickets, setTickets] = useState<TicketBase[]>([]);
   const [selectedTenantIds, setSelectedTenantIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateTicket, setShowCreateTicket] = useState(false);
 
   const { isStaffRole } = useUserRole();
 
@@ -55,7 +59,18 @@ export default function TicketsPage() {
 
   return (
     <>
-      <PageTitle title="Tickets" subtitle="Remediation tasks linked to incidents" />
+      <PageTitle
+        title="Tickets"
+        subtitle="Remediation tasks linked to incidents"
+        rightPanel={
+          isStaffRole ? (
+            <Button className="gap-2" onClick={() => setShowCreateTicket(true)}>
+              <Plus className="h-4 w-4" />
+              Create Ticket
+            </Button>
+          ) : undefined
+        }
+      />
       {isStaffRole && (
         <TicketTenantFilter
           tenants={tenants}
@@ -68,6 +83,11 @@ export default function TicketsPage() {
           <TicketCard key={t.id} ticket={t} highlightTenantStripe={highlightTenantStripe} />
         ))}
       </div>
+      <CreateTicketDialog
+        open={showCreateTicket}
+        onClose={() => setShowCreateTicket(false)}
+        onSuccess={fetchTickets}
+      />
     </>
   );
 }

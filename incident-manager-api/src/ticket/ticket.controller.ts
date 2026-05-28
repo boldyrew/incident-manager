@@ -17,6 +17,8 @@ export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
   @Post()
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
   create(@Body() createTicketDto: CreateTicketDto, @CurrentUser() user: AuthenticatedUser) {
     return this.ticketService.create(createTicketDto, user);
   }

@@ -21,6 +21,9 @@ export class TicketService {
 
   async create(createTicketDto: CreateTicketDto, user: AuthenticatedUser) {
     const scopedTenantId = resolveScopedTenantId(user);
+    if (!scopedTenantId && !createTicketDto.tenantId) {
+      throw new BadRequestException('tenantId is required');
+    }
     const ticket = await this.ticketRepository.create(createTicketDto, scopedTenantId);
     await this.ticketActivityRecorder.recordTicketOpened(
       ticket.id,

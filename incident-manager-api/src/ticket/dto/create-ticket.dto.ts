@@ -23,6 +23,10 @@ export class CreateTicketDto {
   assignedUserId?: string;
 
   @IsString()
-  @IsNotEmpty()
-  incidentId: string;
+  @IsOptional()
+  incidentId?: string;
+
+  @IsString()
+  @IsOptional()
+  tenantId?: string;
 }

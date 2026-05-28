@@ -1,5 +1,5 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
-import { TicketBase, TicketDetailModel, TicketStatus } from '@/types/ticket';
+import { TicketBase, TicketDetailModel, TicketStatus, CreateTicketPayload } from '@/types/ticket';
 import type { TicketActivity } from '@/types/ticket-activity';
 import { User } from '@/types/user';
 import { Tenant, TenantStats, CreateTenantPayload } from '@/types/tenant';
@@ -75,6 +75,13 @@ export async function assignIncident(incidentId: string, userId: string | null):
 
 export async function getTickets(): Promise<TicketBase[]> {
   return request<TicketBase[]>(`/tickets`);
+}
+
+export async function createTicket(data: CreateTicketPayload): Promise<TicketBase> {
+  return request<TicketBase>('/tickets', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
 export async function getTicket(id: string): Promise<TicketDetailModel> {

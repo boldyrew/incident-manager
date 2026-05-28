@@ -28,3 +28,13 @@ export interface TicketDetailModel extends TicketBase {
   description: string;
   assignedUser: Pick<User, 'id' | 'fullName' | 'email'> | null;
 }
+
+export interface CreateTicketPayload {
+  title: string;
+  description?: string;
+  priority?: TicketPriority;
+  status?: TicketStatus;
+  tenantId: string;
+  incidentId?: string;
+  assignedUserId?: string;
+}
