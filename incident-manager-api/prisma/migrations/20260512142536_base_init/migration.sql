@@ -31,6 +31,9 @@ CREATE TABLE "incidents" (
     CONSTRAINT "incidents_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateSequence
+CREATE SEQUENCE "incident_code_seq" START WITH 8 INCREMENT BY 1;
+
 -- CreateTable
 CREATE TABLE "tickets" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -47,6 +50,9 @@ CREATE TABLE "tickets" (
 
     CONSTRAINT "tickets_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateSequence
+CREATE SEQUENCE "ticket_code_seq" START WITH 8 INCREMENT BY 1;
 
 -- CreateTable
 CREATE TABLE "tenants" (
