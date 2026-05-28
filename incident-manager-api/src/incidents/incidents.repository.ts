@@ -20,6 +20,7 @@ export const incidentBaseSelect = {
   status: true,
   severity: true,
   detectedAt: true,
+  resolvedAt: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.IncidentSelect;
@@ -35,6 +36,7 @@ export const incidentSelect = {
   assignee: { select: { id: true, fullName: true, email: true } },
   tenant: { select: tenantSelect },
   detectedAt: true,
+  resolvedAt: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.IncidentSelect;
@@ -102,12 +104,19 @@ export class IncidentsRepository {
     return this.mapIncident(incident);
   }
 
-  async update(id: string, dto: UpdateIncidentDto): Promise<Incident> {
+  async update(id: string, dto: UpdateIncidentDto & { assignedUserId?: string | null }): Promise<Incident> {
+    const resolvedStatuses = new Set(['RESOLVED', 'CLOSED']);
+    const setResolvedAt =
+      dto.status && resolvedStatuses.has(dto.status)
+        ? { resolvedAt: new Date() }
+        : {};
+
     const incident = await this.prisma.incident.update({
       where: { id },
       data: {
         ...dto,
         ...(dto.detectedAt && { detectedAt: new Date(dto.detectedAt) }),
+        ...setResolvedAt,
       },
       select: incidentSelect,
     });
@@ -144,6 +153,7 @@ export class IncidentsRepository {
           }
         : null,
       detectedAt: incident.detectedAt,
+      resolvedAt: incident.resolvedAt,
       tenant: incident.tenant
         ? { id: incident.tenant.id, name: incident.tenant.name, alias: incident.tenant.alias }
         : null,
