@@ -28,7 +28,38 @@ model Incident {
   tenantId       String?          @db.Uuid
   tenant         Tenant?          @relation(fields: [tenantId], references: [id])
 
+  activities     IncidentActivity[] @relation("IncidentActivityIncident")
+
   @@map("incidents")
+}
+
+model IncidentActivity {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type            IncidentActivityType
+
+  userId          String?               @db.Uuid
+  user            User?                 @relation("IncidentActivityUser", fields: [userId], references: [id])
+
+  incidentId      String?               @db.Uuid
+  incident        Incident?             @relation("IncidentActivityIncident", fields: [incidentId], references: [id])
+
+  plainData       String?
+  metadata        Json?
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("incident_activities")
+}
+
+enum IncidentActivityType {
+  INCIDENT_OPENED
+  STATUS_UPDATED
+  SEVERITY_UPDATED
+  ASSIGNEE_UPDATED
+  COMMENT_ADDED
+  DESCRIPTION_UPDATED
+  TITLE_UPDATED
 }
 
 model Ticket {
@@ -160,6 +191,7 @@ model User {
   assignedTickets   Ticket[]          @relation("TicketAssignee")
 
   activities        TicketActivity[]  @relation("TicketActivityUser")
+  incidentActivities IncidentActivity[] @relation("IncidentActivityUser")
 
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt

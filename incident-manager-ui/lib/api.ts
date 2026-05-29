@@ -1,4 +1,5 @@
-import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
+import { Incident, CreateIncidentPayload, UpdateIncidentPayload, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import type { IncidentActivity } from '@/types/incident-activity';
 import {
   TicketBase,
   TicketDetailModel,
@@ -76,6 +77,48 @@ export async function assignIncident(incidentId: string, userId: string | null):
   return request<void>(`/incidents/${incidentId}/assign`, {
     method: 'PATCH',
     body: JSON.stringify({ userId }),
+  });
+}
+
+export async function updateIncidentTitle(id: string, title: string): Promise<Incident> {
+  return request<Incident>(`/incidents/${id}/title`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  });
+}
+
+export async function updateIncidentDescription(id: string, description: string): Promise<Incident> {
+  return request<Incident>(`/incidents/${id}/description`, {
+    method: 'PATCH',
+    body: JSON.stringify({ description }),
+  });
+}
+
+export async function updateIncidentStatus(id: string, status: IncidentStatus): Promise<Incident> {
+  return request<Incident>(`/incidents/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function updateIncidentSeverity(
+  id: string,
+  severity: IncidentSeverity,
+): Promise<Incident> {
+  return request<Incident>(`/incidents/${id}/severity`, {
+    method: 'PATCH',
+    body: JSON.stringify({ severity }),
+  });
+}
+
+export async function getIncidentActivities(incidentId: string): Promise<IncidentActivity[]> {
+  return request<IncidentActivity[]>(`/incidents/${incidentId}/activities`);
+}
+
+export async function addIncidentComment(incidentId: string, body: string): Promise<void> {
+  return request<void>(`/incidents/${incidentId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
   });
 }
 

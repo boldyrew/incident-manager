@@ -22,6 +22,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { AssignIncidentDto } from './dto/assign-incident.dto';
+import { SetStatusDto } from './dto/set-status.dto';
+import { SetSeverityDto } from './dto/set-severity.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { UpdateTitleDto } from './dto/update-title.dto';
+import { UpdateDescriptionDto } from './dto/update-description.dto';
 
 @Controller('incidents')
 @UseGuards(JwtAuthGuard)
@@ -60,8 +65,65 @@ export class IncidentsController {
   @Patch(':id/assign')
   @Roles('ADMIN', 'ANALYST')
   @UseGuards(RolesGuard)
-  assign(@Param('id') id: string, @Body() dto: AssignIncidentDto) {
-    return this.incidentsService.assign(id, dto.userId);
+  assign(
+    @Param('id') id: string,
+    @Body() dto: AssignIncidentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.assign(id, dto.userId, user);
+  }
+
+  @Patch(':id/status')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  setStatus(
+    @Param('id') id: string,
+    @Body() dto: SetStatusDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.setStatus(id, dto.status, user);
+  }
+
+  @Patch(':id/severity')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  setSeverity(
+    @Param('id') id: string,
+    @Body() dto: SetSeverityDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.setSeverity(id, dto.severity, user);
+  }
+
+  @Patch(':id/title')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  updateTitle(
+    @Param('id') id: string,
+    @Body() dto: UpdateTitleDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.updateTitle(id, dto.title, user);
+  }
+
+  @Patch(':id/description')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  updateDescription(
+    @Param('id') id: string,
+    @Body() dto: UpdateDescriptionDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.updateDescription(id, dto.description, user);
+  }
+
+  @Post(':id/comments')
+  addComment(
+    @Param('id') id: string,
+    @Body() dto: AddCommentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.incidentsService.addComment(id, dto.body, user);
   }
 
   @Delete(':id')
