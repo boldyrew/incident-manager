@@ -1,32 +1,49 @@
 'use client';
 
+import { InlineEditableBadgeSelect } from '@/components/editable/InlineEditable';
 import { ContentPanel } from '@/components/layout/ContentPanel';
-import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { UserItem } from '@/components/user/UserItem';
 import { useTicketDetail } from '@/context/ticket-context';
 import { useFormatDateTime } from '@/hooks/useFormatDateTime';
-import { updateTicketStatus } from '@/lib/api';
-import { getTicketPriorityBadgeVariant } from '@/lib/ticketBadgeVariants';
+import { updateTicketPriority, updateTicketStatus } from '@/lib/api';
+import {
+  getTicketPriorityBadgeVariant,
+  getTicketStatusBadgeVariant,
+} from '@/lib/ticketBadgeVariants';
+import { ticketPriorityLabel } from '@/lib/ticketPriorityLabels';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
-import { useUserRole } from '@/hooks/useUserRole';
-import type { TicketStatus } from '@/types/ticket';
+import type { TicketPriority, TicketStatus } from '@/types/ticket';
+import { useCallback } from 'react';
+
+const priorityOptions = (Object.keys(ticketPriorityLabel) as TicketPriority[]).map((value) => ({
+  value,
+  label: ticketPriorityLabel[value],
+}));
+
+const statusOptions = (Object.keys(ticketStatusLabel) as TicketStatus[]).map((value) => ({
+  value,
+  label: ticketStatusLabel[value],
+}));
 
 export function TicketDetailsPanel() {
-  const { ticket, refetch, refetchActivities } = useTicketDetail();
+  const { ticketId, ticket, refetch, refetchActivities } = useTicketDetail();
   const { formatDateTime } = useFormatDateTime();
-  const { isStaffRole } = useUserRole();
 
-  const handleStatusChange = async (status: TicketStatus) => {
-    await updateTicketStatus(ticket.id, status);
-    await Promise.all([refetch(), refetchActivities()]);
-  };
+  const savePriority = useCallback(
+    async (priority: TicketPriority) => {
+      await updateTicketPriority(ticketId, priority);
+      await Promise.all([refetch(), refetchActivities()]);
+    },
+    [ticketId, refetch, refetchActivities],
+  );
+
+  const saveStatus = useCallback(
+    async (status: TicketStatus) => {
+      await updateTicketStatus(ticketId, status);
+      await Promise.all([refetch(), refetchActivities()]);
+    },
+    [ticketId, refetch, refetchActivities],
+  );
 
   return (
     <ContentPanel title="Ticket Details">
@@ -38,27 +55,27 @@ export function TicketDetailsPanel() {
         <div>
           <dt className="mb-1.5 text-muted-foreground">Priority</dt>
           <dd>
-            <Badge
-              variant={getTicketPriorityBadgeVariant(ticket.priority)}
-              label={ticket.priority}
+            <InlineEditableBadgeSelect
+              value={ticket.priority}
+              options={priorityOptions}
+              onSave={savePriority}
+              getBadgeVariant={getTicketPriorityBadgeVariant}
+              label="Priority"
+              className="w-full"
             />
           </dd>
         </div>
         <div>
           <dt className="mb-1.5 text-muted-foreground">Status</dt>
           <dd>
-            <Select value={ticket.status} onValueChange={handleStatusChange} disabled={!isStaffRole}>
-              <SelectTrigger className="h-9 bg-secondary/40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(ticketStatusLabel) as TicketStatus[]).map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {ticketStatusLabel[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <InlineEditableBadgeSelect
+              value={ticket.status}
+              options={statusOptions}
+              onSave={saveStatus}
+              getBadgeVariant={getTicketStatusBadgeVariant}
+              label="Status"
+              className="w-full"
+            />
           </dd>
         </div>
         <div>
@@ -71,18 +88,6 @@ export function TicketDetailsPanel() {
             <dd className="mt-1.5 text-muted-foreground">Unassigned</dd>
           )}
         </div>
-        {/* <div>
-          <dt className="text-muted-foreground">Linked Incident</dt>
-          <dd className="mt-0.5">
-            <Link
-              href="/incidents"
-              className="inline-flex items-center gap-1 font-medium text-blue-400 hover:text-blue-300"
-            >
-              {ticket.linkedIncident}
-              <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-            </Link>
-          </dd>
-        </div> */}
         <div>
           <dt className="text-muted-foreground">Created</dt>
           <dd className="mt-0.5 text-foreground">{formatDateTime(ticket.createdAt)}</dd>

@@ -1,5 +1,11 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
-import { TicketBase, TicketDetailModel, TicketStatus, CreateTicketPayload } from '@/types/ticket';
+import {
+  TicketBase,
+  TicketDetailModel,
+  TicketPriority,
+  TicketStatus,
+  CreateTicketPayload,
+} from '@/types/ticket';
 import type { TicketActivity } from '@/types/ticket-activity';
 import { User } from '@/types/user';
 import { Tenant, TenantStats, CreateTenantPayload } from '@/types/tenant';
@@ -134,6 +140,16 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus)
   return request<void>(`/tickets/${ticketId}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function updateTicketPriority(
+  ticketId: string,
+  priority: TicketPriority,
+): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/priority`, {
+    method: 'PATCH',
+    body: JSON.stringify({ priority }),
   });
 }
 

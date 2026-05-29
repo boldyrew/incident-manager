@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { TicketStatus } from '@prisma/client';
+import { TicketPriority, TicketStatus } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { resolveScopedTenantId } from '../auth/utils/scoped-tenant';
 import { IncidentsRepository } from '../incidents/incidents.repository';
@@ -126,8 +126,26 @@ export class TicketService {
 
   async setStatus(id: string, status: TicketStatus, actor?: AuthenticatedUser) {
     const before = await this.findOne(id);
+    if (before.status === status) {
+      return before;
+    }
     const ticket = await this.ticketRepository.update(id, { status });
     await this.ticketActivityRecorder.recordStatusUpdated(id, actor?.sub, before.status, status);
+    return ticket;
+  }
+
+  async setPriority(id: string, priority: TicketPriority, actor?: AuthenticatedUser) {
+    const before = await this.findOne(id);
+    if (before.priority === priority) {
+      return before;
+    }
+    const ticket = await this.ticketRepository.update(id, { priority });
+    await this.ticketActivityRecorder.recordPriorityUpdated(
+      id,
+      actor?.sub,
+      before.priority,
+      priority,
+    );
     return ticket;
   }
 

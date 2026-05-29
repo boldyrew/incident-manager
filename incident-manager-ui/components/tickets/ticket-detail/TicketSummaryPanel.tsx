@@ -9,6 +9,7 @@ import {
   getTicketPriorityBadgeVariant,
   getTicketStatusBadgeVariant,
 } from '@/lib/ticketBadgeVariants';
+import { ticketPriorityLabel } from '@/lib/ticketPriorityLabels';
 import { ticketStatusLabel } from '@/lib/ticketStatusLabels';
 import { useCallback } from 'react';
 
@@ -34,10 +35,13 @@ export function TicketSummaryPanel() {
   return (
     <ContentPanel>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Badge variant={getTicketPriorityBadgeVariant(ticket.priority)} label={ticket.priority} />
+        <Badge
+          variant={getTicketPriorityBadgeVariant(ticket.priority)}
+          label={ticketPriorityLabel[ticket.priority]}
+        />
         <Badge
           variant={getTicketStatusBadgeVariant(ticket.status)}
-          label={ticketStatusLabel[ticket.status] || ticket.status}
+          label={ticketStatusLabel[ticket.status]}
         />
       </div>
       <InlineEditableText

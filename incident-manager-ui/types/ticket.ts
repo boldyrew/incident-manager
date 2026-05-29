@@ -38,3 +38,4 @@ export interface CreateTicketPayload {
   incidentId?: string;
   assignedUserId?: string;
 }
+

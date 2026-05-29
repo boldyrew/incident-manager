@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { LinkIncidentDto } from './dto/link-incident.dto';
+import { SetPriorityDto } from './dto/set-priority.dto';
 import { SetStatusDto } from './dto/set-status.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { UpdateTitleDto } from './dto/update-title.dto';
@@ -77,6 +78,17 @@ export class TicketController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ticketService.setStatus(id, dto.status, user);
+  }
+
+  @Patch(':id/priority')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  setPriority(
+    @Param('id') id: string,
+    @Body() dto: SetPriorityDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.setPriority(id, dto.priority, user);
   }
 
   @Patch(':id/title')

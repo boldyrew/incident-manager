@@ -1,7 +1,15 @@
 'use client';
 
+import { Badge, type BadgeVariant } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -212,4 +220,147 @@ export function InlineEditableText(
 
 export function InlineEditableTextarea(props: Omit<InlineEditableProps, 'mode'>) {
   return <InlineEditable {...props} mode="multiline" />;
+}
+
+export interface InlineEditableBadgeSelectOption<T extends string> {
+  value: T;
+  label: string;
+}
+
+export interface InlineEditableBadgeSelectProps<T extends string> {
+  value: T;
+  options: InlineEditableBadgeSelectOption<T>[];
+  onSave: (value: T) => Promise<void>;
+  getBadgeVariant: (value: T) => BadgeVariant;
+  label?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+const badgeTriggerClassName =
+  'inline-flex cursor-pointer rounded-md ring-1 ring-transparent transition-[box-shadow,transform] hover:ring-border focus-visible:outline-none focus-visible:ring-ring active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:ring-transparent disabled:active:scale-100';
+
+export function InlineEditableBadgeSelect<T extends string>({
+  value,
+  options,
+  onSave,
+  getBadgeVariant,
+  label,
+  disabled = false,
+  className,
+}: InlineEditableBadgeSelectProps<T>) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const selectedOption = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
+
+  const startEditing = useCallback(() => {
+    if (disabled || saving) return;
+    setDraft(value);
+    setError(null);
+    setEditing(true);
+  }, [disabled, saving, value]);
+
+  const cancel = useCallback(() => {
+    setDraft(value);
+    setError(null);
+    setEditing(false);
+  }, [value]);
+
+  const save = useCallback(async () => {
+    if (draft === value) {
+      setEditing(false);
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      await onSave(draft);
+      setEditing(false);
+    } catch {
+      setError('Failed to save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  }, [draft, onSave, value]);
+
+  const handleDisplayKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      startEditing();
+    }
+  };
+
+  const handleSelectKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className={cn('flex w-full flex-col gap-2', className)}>
+        {label ? <span className="sr-only">{label}</span> : null}
+        <Select
+          value={draft}
+          onValueChange={(next) => setDraft(next as T)}
+          disabled={saving}
+        >
+          <SelectTrigger
+            className="h-9 w-full bg-secondary/40"
+            onKeyDown={handleSelectKeyDown}
+            aria-label={label}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" size="sm" onClick={() => void save()} disabled={saving}>
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+            Save
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={cancel} disabled={saving}>
+            Cancel
+          </Button>
+        </div>
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className={className}>
+      {label ? <span className="sr-only">{label}</span> : null}
+      <button
+        type="button"
+        onClick={startEditing}
+        onKeyDown={handleDisplayKeyDown}
+        disabled={disabled}
+        className={badgeTriggerClassName}
+        aria-label={label ? `Edit ${label}` : 'Edit'}
+        title={disabled ? undefined : `Click to edit ${label?.toLowerCase() ?? 'value'}`}
+      >
+        <Badge
+          variant={getBadgeVariant(value)}
+          label={selectedOption?.label ?? value}
+          className="pointer-events-none"
+        />
+      </button>
+    </div>
+  );
 }
