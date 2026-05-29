@@ -20,7 +20,7 @@ export interface IncidentReassignDialogProps {
 }
 
 export function IncidentReassignDialog({ open, onOpenChange }: IncidentReassignDialogProps) {
-  const { incident, refetch } = useIncidentDetail();
+  const { incident, refetch, refetchActivities } = useIncidentDetail();
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -42,7 +42,7 @@ export function IncidentReassignDialog({ open, onOpenChange }: IncidentReassignD
     const choice = selectedUserId ?? USER_SELECT_UNASSIGNED;
     const userId = choice === USER_SELECT_UNASSIGNED ? null : choice;
     await assignIncident(incident.id, userId);
-    await refetch();
+    await Promise.all([refetch(), refetchActivities()]);
     onOpenChange(false);
     setSelectedUserId(undefined);
   }

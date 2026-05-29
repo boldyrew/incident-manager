@@ -1,37 +1,53 @@
 'use client';
 
-import { SeverityBadge } from '@/components/incidents/SeverityBadge';
+import { InlineEditableBadgeSelect } from '@/components/editable/InlineEditable';
 import { ContentPanel } from '@/components/layout/ContentPanel';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { UserItem } from '@/components/user/UserItem';
 import { useIncidentDetail } from '@/context/incident-context';
 import { useFormatDateTime } from '@/hooks/useFormatDateTime';
 import { useUserRole } from '@/hooks/useUserRole';
-import { updateIncident } from '@/lib/api';
-import type { IncidentStatus } from '@/types/incident';
+import { updateIncidentSeverity, updateIncidentStatus } from '@/lib/api';
+import {
+  getIncidentSeverityBadgeVariant,
+  getIncidentStatusBadgeVariant,
+} from '@/lib/incidentBadgeVariants';
+import { incidentSeverityLabel } from '@/lib/incidentSeverityLabels';
+import { incidentStatusLabel } from '@/lib/incidentStatusLabels';
+import type { IncidentSeverity, IncidentStatus } from '@/types/incident';
+import { useCallback } from 'react';
 
-const statusLabels: Record<IncidentStatus, string> = {
-  OPEN: 'Open',
-  IN_PROGRESS: 'In Progress',
-  RESOLVED: 'Resolved',
-  CLOSED: 'Closed',
-};
+const severityOptions = (Object.keys(incidentSeverityLabel) as IncidentSeverity[]).map(
+  (value) => ({
+    value,
+    label: incidentSeverityLabel[value],
+  }),
+);
+
+const statusOptions = (Object.keys(incidentStatusLabel) as IncidentStatus[]).map((value) => ({
+  value,
+  label: incidentStatusLabel[value],
+}));
 
 export function IncidentDetailsPanel() {
-  const { incident, refetch } = useIncidentDetail();
+  const { incidentId, incident, refetch, refetchActivities } = useIncidentDetail();
   const { formatDateTime } = useFormatDateTime();
   const { isStaffRole } = useUserRole();
 
-  const handleStatusChange = async (status: IncidentStatus) => {
-    await updateIncident(incident.id, { status });
-    await refetch();
-  };
+  const saveSeverity = useCallback(
+    async (severity: IncidentSeverity) => {
+      await updateIncidentSeverity(incidentId, severity);
+      await Promise.all([refetch(), refetchActivities()]);
+    },
+    [incidentId, refetch, refetchActivities],
+  );
+
+  const saveStatus = useCallback(
+    async (status: IncidentStatus) => {
+      await updateIncidentStatus(incidentId, status);
+      await Promise.all([refetch(), refetchActivities()]);
+    },
+    [incidentId, refetch, refetchActivities],
+  );
 
   return (
     <ContentPanel title="Incident Details">
@@ -43,28 +59,29 @@ export function IncidentDetailsPanel() {
         <div>
           <dt className="mb-1.5 text-muted-foreground">Severity</dt>
           <dd>
-            <SeverityBadge severity={incident.severity} />
+            <InlineEditableBadgeSelect
+              value={incident.severity}
+              options={severityOptions}
+              onSave={saveSeverity}
+              getBadgeVariant={getIncidentSeverityBadgeVariant}
+              label="Severity"
+              className="w-full"
+              disabled={!isStaffRole}
+            />
           </dd>
         </div>
         <div>
           <dt className="mb-1.5 text-muted-foreground">Status</dt>
           <dd>
-            <Select
+            <InlineEditableBadgeSelect
               value={incident.status}
-              onValueChange={handleStatusChange}
+              options={statusOptions}
+              onSave={saveStatus}
+              getBadgeVariant={getIncidentStatusBadgeVariant}
+              label="Status"
+              className="w-full"
               disabled={!isStaffRole}
-            >
-              <SelectTrigger className="h-9 bg-secondary/40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(statusLabels) as IncidentStatus[]).map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {statusLabels[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </dd>
         </div>
         <div>

@@ -1,10 +1,13 @@
 'use client';
 
 import { IncidentActionsPanel } from '@/components/incidents/incident-detail/IncidentActionsPanel';
+import { IncidentActivityPanel } from '@/components/incidents/incident-detail/incident-activity/IncidentActivityPanel';
 import { IncidentBackLink } from '@/components/incidents/incident-detail/IncidentBackLink';
+import { IncidentCommentForm } from '@/components/incidents/incident-detail/IncidentCommentForm';
 import { IncidentDetailsPanel } from '@/components/incidents/incident-detail/IncidentDetailsPanel';
 import { IncidentSummaryPanel } from '@/components/incidents/incident-detail/IncidentSummaryPanel';
 import { IncidentDetailProvider } from '@/context/incident-context';
+import { useIncidentActivities } from '@/hooks/useIncidentActivities';
 import { getIncident } from '@/lib/api';
 import type { Incident } from '@/types/incident';
 import { useParams } from 'next/navigation';
@@ -16,6 +19,13 @@ export default function IncidentDetailPage() {
 
   const [loading, setLoading] = useState(true);
   const [incident, setIncident] = useState<Incident | null>(null);
+
+  const {
+    activities,
+    loading: activitiesLoading,
+    error: activitiesError,
+    refetch: refetchActivities,
+  } = useIncidentActivities(incidentId || undefined);
 
   const fetchIncident = useCallback(async () => {
     if (!incidentId) return;
@@ -48,7 +58,12 @@ export default function IncidentDetailPage() {
   }
 
   return (
-    <IncidentDetailProvider incidentId={incidentId} incident={incident} refetch={fetchIncident}>
+    <IncidentDetailProvider
+      incidentId={incidentId}
+      incident={incident}
+      refetch={fetchIncident}
+      refetchActivities={refetchActivities}
+    >
       <div className="space-y-6">
         <IncidentBackLink />
 
@@ -60,6 +75,12 @@ export default function IncidentDetailPage() {
 
           <div className="min-w-0 flex-1 space-y-4">
             <IncidentSummaryPanel />
+            <IncidentActivityPanel
+              activities={activities}
+              loading={activitiesLoading}
+              error={activitiesError}
+            />
+            <IncidentCommentForm />
           </div>
         </div>
       </div>
