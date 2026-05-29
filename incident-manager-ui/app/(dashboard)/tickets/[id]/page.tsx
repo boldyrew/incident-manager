@@ -73,7 +73,7 @@ export default function TicketDetailPage() {
           <aside className="w-full shrink-0 space-y-4 lg:max-w-[320px]">
             <TicketDetailsPanel />
             <TicketActionsPanel />
-            <TicketQuickStatsPanel />
+            <TicketQuickStatsPanel activities={activities} loading={activitiesLoading} />
             <TicketLinkedIncidentPanel />
           </aside>
 
