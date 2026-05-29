@@ -88,6 +88,26 @@ export async function getTicket(id: string): Promise<TicketDetailModel> {
   return request<TicketDetailModel>(`/tickets/${id}`);
 }
 
+export async function updateTicketTitle(
+  ticketId: string,
+  title: string,
+): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${ticketId}/title`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  });
+}
+
+export async function updateTicketDescription(
+  ticketId: string,
+  description: string,
+): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${ticketId}/description`, {
+    method: 'PATCH',
+    body: JSON.stringify({ description }),
+  });
+}
+
 export async function getTicketActivities(ticketId: string): Promise<TicketActivity[]> {
   return request<TicketActivity[]>(`/tickets/${ticketId}/activities`);
 }
@@ -114,6 +134,13 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus)
   return request<void>(`/tickets/${ticketId}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function addTicketComment(ticketId: string, body: string): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
   });
 }
 

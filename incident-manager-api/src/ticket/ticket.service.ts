@@ -45,12 +45,38 @@ export class TicketService {
     return ticket;
   }
 
-  async update(id: string, updateTicketDto: UpdateTicketDto, actor?: AuthenticatedUser) {
+  update(id: string, updateTicketDto: UpdateTicketDto) {
+    return this.ticketRepository.update(id, updateTicketDto);
+  }
+
+  async updateTitle(id: string, title: string, actor?: AuthenticatedUser) {
     const before = await this.findOne(id);
-    const ticket = await this.ticketRepository.update(id, updateTicketDto);
-    const after = await this.findOne(id);
-    // await this.recordUpdateActivities(id, actor?.sub, before, after);
-    return ticket;
+    const trimmed = title.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Title is required');
+    }
+    if (trimmed === before.title) {
+      return before;
+    }
+    await this.ticketRepository.update(id, { title: trimmed });
+    await this.ticketActivityRecorder.recordTitleUpdated(id, actor?.sub, before.title, trimmed);
+    return this.findOne(id);
+  }
+
+  async updateDescription(id: string, description: string | undefined, actor?: AuthenticatedUser) {
+    const before = await this.findOne(id);
+    const next = description?.trim() || null;
+    if (next === (before.description ?? null)) {
+      return before;
+    }
+    await this.ticketRepository.update(id, { description: next });
+    await this.ticketActivityRecorder.recordDescriptionUpdated(
+      id,
+      actor?.sub,
+      before.description ?? null,
+      next,
+    );
+    return this.findOne(id);
   }
 
   async remove(id: string) {
@@ -103,6 +129,15 @@ export class TicketService {
     const ticket = await this.ticketRepository.update(id, { status });
     await this.ticketActivityRecorder.recordStatusUpdated(id, actor?.sub, before.status, status);
     return ticket;
+  }
+
+  async addComment(id: string, body: string, actor: AuthenticatedUser) {
+    await this.findOne(id);
+    const trimmed = body.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Comment body is required');
+    }
+    return this.ticketActivityRecorder.recordCommentAdded(id, actor.sub, trimmed);
   }
 
   // private async recordUpdateActivities(

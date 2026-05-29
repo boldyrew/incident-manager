@@ -3,6 +3,7 @@ import { TicketPriority, TicketStatus } from '../entities/ticket.entity';
 import { TicketActivity } from './entities/ticket-activity.entity';
 import {
   createAssigneeUpdatedActivity,
+  createCommentAddedActivity,
   createDescriptionUpdatedActivity,
   createIncidentLinkedActivity,
   createPriorityUpdatedActivity,
@@ -92,6 +93,16 @@ export class TicketActivityRecorder {
     if (from === to) return Promise.resolve(null);
     return this.ticketActivityRepository.create(
       createTitleUpdatedActivity(ticketId, userId, { from, to }),
+    );
+  }
+
+  recordCommentAdded(
+    ticketId: string,
+    userId: string | null | undefined,
+    body: string,
+  ): Promise<TicketActivity> {
+    return this.ticketActivityRepository.create(
+      createCommentAddedActivity(ticketId, userId, { body }),
     );
   }
 }
