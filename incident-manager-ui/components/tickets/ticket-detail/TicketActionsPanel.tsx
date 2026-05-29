@@ -31,9 +31,9 @@ export function TicketActionsPanel() {
           </>
         )}
 
-        <Button variant="secondary" className="w-full bg-secondary hover:bg-secondary/80">
+        {/* <Button variant="secondary" className="w-full bg-secondary hover:bg-secondary/80">
           Export Details
-        </Button>
+        </Button> */}
       </div>
 
       {isStaffRole && (

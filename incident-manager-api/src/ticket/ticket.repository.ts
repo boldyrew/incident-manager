@@ -39,17 +39,30 @@ export class TicketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateTicketDto, scopedTenantId?: string): Promise<TicketBase> {
-    const incident = await this.prisma.incident.findFirst({
-      where: {
-        id: dto.incidentId,
-        ...(scopedTenantId !== undefined ? { tenantId: scopedTenantId } : {}),
-      },
-      select: { tenantId: true },
-    });
-    if (!incident) {
-      throw new NotFoundException(`Incident ${dto.incidentId} not found`);
+    const tenantId = scopedTenantId ?? dto.tenantId ?? null;
+    if (tenantId) {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { id: true },
+      });
+      if (!tenant) {
+        throw new NotFoundException(`Tenant ${tenantId} not found`);
+      }
     }
-    const tenantId = incident.tenantId ?? scopedTenantId ?? null;
+
+    if (dto.incidentId) {
+      const incident = await this.prisma.incident.findFirst({
+        where: {
+          id: dto.incidentId,
+          ...(tenantId !== null ? { tenantId } : {}),
+          ...(scopedTenantId !== undefined ? { tenantId: scopedTenantId } : {}),
+        },
+        select: { id: true },
+      });
+      if (!incident) {
+        throw new NotFoundException(`Incident ${dto.incidentId} not found`);
+      }
+    }
 
     const code = await this.getNewTicketCode();
     const createData: Prisma.TicketUncheckedCreateInput = {
@@ -58,7 +71,7 @@ export class TicketRepository {
       description: dto.description,
       priority: dto.priority,
       status: dto.status,
-      incidentId: dto.incidentId,
+      incidentId: dto.incidentId ?? null,
       tenantId,
     };
 

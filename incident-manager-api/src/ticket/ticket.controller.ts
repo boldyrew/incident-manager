@@ -9,7 +9,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { LinkIncidentDto } from './dto/link-incident.dto';
+import { SetPriorityDto } from './dto/set-priority.dto';
 import { SetStatusDto } from './dto/set-status.dto';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { UpdateTitleDto } from './dto/update-title.dto';
+import { UpdateDescriptionDto } from './dto/update-description.dto';
 
 @Controller('tickets')
 @UseGuards(JwtAuthGuard)
@@ -17,6 +21,8 @@ export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
   @Post()
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
   create(@Body() createTicketDto: CreateTicketDto, @CurrentUser() user: AuthenticatedUser) {
     return this.ticketService.create(createTicketDto, user);
   }
@@ -32,12 +38,8 @@ export class TicketController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTicketDto: UpdateTicketDto,
-    @CurrentUser() user: AuthenticatedUser,
-  ) {
-    return this.ticketService.update(id, updateTicketDto, user);
+  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
+    return this.ticketService.update(id, updateTicketDto);
   }
 
   @Delete(':id')
@@ -76,5 +78,47 @@ export class TicketController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ticketService.setStatus(id, dto.status, user);
+  }
+
+  @Patch(':id/priority')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  setPriority(
+    @Param('id') id: string,
+    @Body() dto: SetPriorityDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.setPriority(id, dto.priority, user);
+  }
+
+  @Patch(':id/title')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  updateTitle(
+    @Param('id') id: string,
+    @Body() dto: UpdateTitleDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.updateTitle(id, dto.title, user);
+  }
+
+  @Patch(':id/description')
+  @Roles('ADMIN', 'ANALYST')
+  @UseGuards(RolesGuard)
+  updateDescription(
+    @Param('id') id: string,
+    @Body() dto: UpdateDescriptionDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.updateDescription(id, dto.description, user);
+  }
+
+  @Post(':id/comments')
+  addComment(
+    @Param('id') id: string,
+    @Body() dto: AddCommentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ticketService.addComment(id, dto.body, user);
   }
 }

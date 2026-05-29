@@ -1,5 +1,11 @@
 import { Incident, CreateIncidentPayload, UpdateIncidentPayload } from '@/types/incident';
-import { TicketBase, TicketDetailModel, TicketStatus } from '@/types/ticket';
+import {
+  TicketBase,
+  TicketDetailModel,
+  TicketPriority,
+  TicketStatus,
+  CreateTicketPayload,
+} from '@/types/ticket';
 import type { TicketActivity } from '@/types/ticket-activity';
 import { User } from '@/types/user';
 import { Tenant, TenantStats, CreateTenantPayload } from '@/types/tenant';
@@ -77,8 +83,35 @@ export async function getTickets(): Promise<TicketBase[]> {
   return request<TicketBase[]>(`/tickets`);
 }
 
+export async function createTicket(data: CreateTicketPayload): Promise<TicketBase> {
+  return request<TicketBase>('/tickets', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 export async function getTicket(id: string): Promise<TicketDetailModel> {
   return request<TicketDetailModel>(`/tickets/${id}`);
+}
+
+export async function updateTicketTitle(
+  ticketId: string,
+  title: string,
+): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${ticketId}/title`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  });
+}
+
+export async function updateTicketDescription(
+  ticketId: string,
+  description: string,
+): Promise<TicketDetailModel> {
+  return request<TicketDetailModel>(`/tickets/${ticketId}/description`, {
+    method: 'PATCH',
+    body: JSON.stringify({ description }),
+  });
 }
 
 export async function getTicketActivities(ticketId: string): Promise<TicketActivity[]> {
@@ -107,6 +140,23 @@ export async function updateTicketStatus(ticketId: string, status: TicketStatus)
   return request<void>(`/tickets/${ticketId}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
+  });
+}
+
+export async function updateTicketPriority(
+  ticketId: string,
+  priority: TicketPriority,
+): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/priority`, {
+    method: 'PATCH',
+    body: JSON.stringify({ priority }),
+  });
+}
+
+export async function addTicketComment(ticketId: string, body: string): Promise<void> {
+  return request<void>(`/tickets/${ticketId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
   });
 }
 
