@@ -5,8 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { TenantsModule } from './tenants/tenants.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
-  imports: [AuthModule, IncidentsModule, TicketModule, UsersModule, DashboardModule, TenantsModule],
+  imports: [AuthModule, IncidentsModule, TicketModule, UsersModule, DashboardModule, TenantsModule, HealthModule],
 })
 export class AppModule {}
