@@ -63,31 +63,33 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 p-4 space-y-0.5">
-        {navItems.map(({ href, label, icon: Icon, disabled }) => {
-          const isActive = pathname === href || pathname.startsWith(href + '/');
-          return (
-            <Link
-              key={href}
-              href={disabled ? '#' : href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
-                isActive
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
-              )}
-              aria-disabled={disabled}
-            >
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              {label}
-              {disabled && (
-                <span className="ml-auto text-[10px] text-muted-foreground/60 border border-border rounded px-1">
-                  soon
-                </span>
-              )}
-            </Link>
-          );
-        })}
+        {navItems
+          .filter(({ disabled }) => !disabled)
+          .map(({ href, label, icon: Icon, disabled }) => {
+            const isActive = pathname === href || pathname.startsWith(href + '/');
+            return (
+              <Link
+                key={href}
+                href={disabled ? '#' : href}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+                  isActive
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                  disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
+                )}
+                aria-disabled={disabled}
+              >
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                {label}
+                {disabled && (
+                  <span className="ml-auto text-[10px] text-muted-foreground/60 border border-border rounded px-1">
+                    soon
+                  </span>
+                )}
+              </Link>
+            );
+          })}
       </nav>
 
       <div className="p-4 border-t border-border">
