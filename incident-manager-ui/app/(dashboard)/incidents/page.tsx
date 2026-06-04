@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Topbar } from '@/components/layout/Topbar';
-import { IncidentsTable } from '@/components/incidents/IncidentsTable';
 import { IncidentFilters } from '@/components/incidents/IncidentFilters';
 import { IncidentForm } from '@/components/incidents/IncidentForm';
-import { getIncidents, deleteIncident } from '@/lib/api';
+import { IncidentsTable } from '@/components/incidents/IncidentsTable';
+import PageTitle from '@/components/layout/PageTitle';
+import { Button } from '@/components/ui/button';
+import { deleteIncident, getIncidents } from '@/lib/api';
 import { Incident, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import { Plus } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -58,36 +59,31 @@ export default function IncidentsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Topbar
-          search={search}
-          onSearchChange={setSearch}
-          onCreateClick={() => setIsFormOpen(true)}
+    <>
+      <div>
+        <PageTitle
+          title="Incidents"
+          subtitle="Monitor and manage security incidents across all clients"
+          rightPanel={
+            <Button onClick={() => setIsFormOpen(true)} className="ml-4">
+              <Plus className="h-4 w-4" />
+              Create Incident
+            </Button>
+          }
         />
-        <main className="flex-1 overflow-auto p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-foreground">Incidents</h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Monitor and manage security incidents across all clients
-            </p>
-          </div>
+        <IncidentFilters
+          severity={severity}
+          status={status}
+          onSeverityChange={setSeverity}
+          onStatusChange={setStatus}
+        />
 
-          <IncidentFilters
-            severity={severity}
-            status={status}
-            onSeverityChange={setSeverity}
-            onStatusChange={setStatus}
-          />
-
-          <IncidentsTable
-            incidents={incidents}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </main>
+        <IncidentsTable
+          incidents={incidents}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
 
       <IncidentForm
@@ -99,6 +95,6 @@ export default function IncidentsPage() {
           fetchIncidents();
         }}
       />
-    </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,17 +9,111 @@ datasource db {
 }
 
 model Incident {
-  id          String           @id @default(uuid())
-  incidentId  String           @unique
-  title       String
-  description String?
-  severity    IncidentSeverity
-  status      IncidentStatus
-  client      String
-  assignedTo  String?
-  detectedAt  DateTime
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code           String           @unique
+  title          String
+  description    String?
+  severity       IncidentSeverity
+  status         IncidentStatus
+  client         String
+
+  assignedUserId String?          @db.Uuid
+  assignee       User?            @relation("IncidentAssignee", fields: [assignedUserId], references: [id])
+
+  detectedAt     DateTime
+  resolvedAt     DateTime?
+  tickets        Ticket[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  tenantId       String?          @db.Uuid
+  tenant         Tenant?          @relation(fields: [tenantId], references: [id])
+
+  activities     IncidentActivity[] @relation("IncidentActivityIncident")
+
+  @@map("incidents")
+}
+
+model IncidentActivity {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type            IncidentActivityType
+
+  userId          String?               @db.Uuid
+  user            User?                 @relation("IncidentActivityUser", fields: [userId], references: [id])
+
+  incidentId      String?               @db.Uuid
+  incident        Incident?             @relation("IncidentActivityIncident", fields: [incidentId], references: [id])
+
+  plainData       String?
+  metadata        Json?
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("incident_activities")
+}
+
+enum IncidentActivityType {
+  INCIDENT_OPENED
+  STATUS_UPDATED
+  SEVERITY_UPDATED
+  ASSIGNEE_UPDATED
+  COMMENT_ADDED
+  DESCRIPTION_UPDATED
+  TITLE_UPDATED
+}
+
+model Ticket {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code            String                @unique
+  title           String
+  description     String?
+  priority        TicketPriority        @default(MEDIUM)
+  status          TicketStatus          @default(OPEN)
+  incidentId      String?               @db.Uuid
+  incident        Incident?             @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  assignedUserId  String?               @db.Uuid
+  assignee        User?                 @relation("TicketAssignee", fields: [assignedUserId], references: [id])
+
+  tenantId        String?               @db.Uuid
+  tenant          Tenant?               @relation(fields: [tenantId], references: [id])
+
+  activities      TicketActivity[]      @relation("TicketActivityTicket")
+
+  @@map("tickets")
+}
+
+model TicketActivity {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type            TicketActivityType
+
+  userId          String?               @db.Uuid
+  user            User?                 @relation("TicketActivityUser", fields: [userId], references: [id])
+
+  ticketId        String?               @db.Uuid
+  ticket          Ticket?               @relation("TicketActivityTicket",fields: [ticketId], references: [id])
+  
+  plainData       String?
+  metadata        Json?    
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("ticket_activities")
+}
+
+enum TicketActivityType {
+  TICKET_OPENED
+  STATUS_UPDATED
+  PRIORITY_UPDATED
+  ASSIGNEE_UPDATED
+  INCIDENT_LINKED
+  COMMENT_ADDED
+  DESCRIPTION_UPDATED
+  TITLE_UPDATED
 }
 
 enum IncidentSeverity {
@@ -33,4 +128,74 @@ enum IncidentStatus {
   IN_PROGRESS
   RESOLVED
   CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum UserRole {
+  ADMIN
+  ANALYST
+  CLIENT_USER
+}
+
+model Tenant {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  alias     String       @unique
+  industry  String?
+  tier      TenantTier   @default(PROFESSIONAL)
+  status    TenantStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  users     User[]
+  incidents Incident[]
+  tickets   Ticket[]
+
+  @@map("tenants")
+}
+
+enum TenantTier {
+  ENTERPRISE
+  PROFESSIONAL
+  STARTER
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email             String            @unique
+  passwordHash      String
+  fullName          String
+  role              UserRole
+
+  tenantId          String?           @db.Uuid
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id])
+
+  assignedIncidents Incident[]        @relation("IncidentAssignee")
+  assignedTickets   Ticket[]          @relation("TicketAssignee")
+
+  activities        TicketActivity[]  @relation("TicketActivityUser")
+  incidentActivities IncidentActivity[] @relation("IncidentActivityUser")
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("users")
 }

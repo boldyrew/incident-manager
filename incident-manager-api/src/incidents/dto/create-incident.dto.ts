@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsDateString, IsUUID } from 'class-validator';
 import { IncidentSeverity, IncidentStatus } from '@prisma/client';
 
 export class CreateIncidentDto {
@@ -20,9 +20,9 @@ export class CreateIncidentDto {
   @IsNotEmpty()
   client: string;
 
-  @IsString()
+  @IsUUID()
   @IsOptional()
-  assignedTo?: string;
+  assignedUserId?: string | null;
 
   @IsDateString()
   detectedAt: string;
