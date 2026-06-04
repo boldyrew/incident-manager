@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { UserItem } from '@/components/user/UserItem';
 import { useAuth } from '@/context/auth-context';
 import {
   getTicketPriorityBadgeVariant,
@@ -65,22 +66,28 @@ export default function TicketCard({ ticket, highlightTenantStripe = false }: Ti
             </h4>
           </Link>
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Assigned To:</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs">
-                  {ticket.assignedTo
-                    ?.split(' ')
-                    .map((n) => n[0])
-                    .join('')}
-                </div>
-                <span>{ticket.assignedTo ? ticket.assignedTo : 'Unassigned'}</span>
-              </div>
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <span className="shrink-0 text-gray-400">Assigned To:</span>
+              {ticket.assignedUser ? (
+                <UserItem user={ticket.assignedUser} type="compact" />
+              ) : (
+                <span className="text-muted-foreground">Unassigned</span>
+              )}
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Linked Incident:</span>
-              <span className="text-blue-400">{/* {ticket.linkedIncident} */}</span>
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <span className="shrink-0 text-gray-400">Linked Incident:</span>
+              {ticket.incident ? (
+                <Link
+                  href={`/incidents/${ticket.incident.id}`}
+                  className="truncate text-blue-400 hover:text-blue-300"
+                  title={`${ticket.incident.code} — ${ticket.incident.title}`}
+                >
+                  {ticket.incident.code}
+                </Link>
+              ) : (
+                <span className="text-muted-foreground">None</span>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-sm">

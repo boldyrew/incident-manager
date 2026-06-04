@@ -10,6 +10,8 @@ export interface TicketTenantSummary {
   alias: string;
 }
 
+export type TicketAssignedUser = Pick<User, 'id' | 'fullName' | 'email'>;
+
 export interface TicketBase {
   id: string;
   code: string;
@@ -17,6 +19,8 @@ export interface TicketBase {
   priority: TicketPriority;
   status: TicketStatus;
   incidentId: string | null;
+  assignedUser: TicketAssignedUser | null;
+  incident: IncidentBase | null;
   tenant: TicketTenantSummary | null;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +28,4 @@ export interface TicketBase {
 
 export interface TicketDetailModel extends TicketBase {
   description: string | null;
-  assignedUser: Pick<User, 'id' | 'fullName' | 'email'> | null;
-  incident: IncidentBase | null;
 }

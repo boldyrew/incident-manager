@@ -7,6 +7,8 @@ import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { TicketBase, TicketDetailModel } from './entities/ticket.entity';
 
+const assigneeSelect = { id: true, fullName: true, email: true } satisfies Prisma.UserSelect;
+
 const ticketBaseSelect = {
   id: true,
   code: true,
@@ -17,13 +19,13 @@ const ticketBaseSelect = {
   createdAt: true,
   updatedAt: true,
   tenant: { select: tenantSelect },
+  assignee: { select: assigneeSelect },
+  incident: { select: incidentBaseSelect },
 } satisfies Prisma.TicketSelect;
 
 const ticketDetailSelect = {
   ...ticketBaseSelect,
   description: true,
-  assignee: true,
-  incident: { select: incidentBaseSelect },
 } satisfies Prisma.TicketSelect;
 
 type TicketBaseRecord = Prisma.TicketGetPayload<{
@@ -135,18 +137,6 @@ export class TicketRepository {
       priority: ticket.priority,
       status: ticket.status,
       incidentId: ticket.incidentId,
-      tenant: ticket.tenant
-        ? { id: ticket.tenant.id, name: ticket.tenant.name, alias: ticket.tenant.alias }
-        : null,
-      createdAt: ticket.createdAt,
-      updatedAt: ticket.updatedAt,
-    };
-  }
-
-  private mapTicketDetail(ticket: TicketDetailRecord): TicketDetailModel {
-    return {
-      ...this.mapTicketBase(ticket),
-      description: ticket.description,
       assignedUser: ticket.assignee
         ? {
             id: ticket.assignee.id,
@@ -165,6 +155,18 @@ export class TicketRepository {
             resolvedAt: ticket.incident.resolvedAt ?? null,
           }
         : null,
+      tenant: ticket.tenant
+        ? { id: ticket.tenant.id, name: ticket.tenant.name, alias: ticket.tenant.alias }
+        : null,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+    };
+  }
+
+  private mapTicketDetail(ticket: TicketDetailRecord): TicketDetailModel {
+    return {
+      ...this.mapTicketBase(ticket),
+      description: ticket.description,
     };
   }
 }
