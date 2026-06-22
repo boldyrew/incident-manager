@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { IncidentSeverity, IncidentStatus } from '@prisma/client';
+import { IncidentSeverity, IncidentStatus, IncidentType } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { resolveScopedTenantId } from '../auth/utils/scoped-tenant';
 import { UsersRepository } from '../users/users.repository';
@@ -136,5 +136,40 @@ export class IncidentsService {
   async remove(id: string) {
     await this.findOne(id);
     return this.incidentsRepository.delete(id);
+  }
+
+  async createSystemIncident(payload: {
+    title: string;
+    description?: string;
+    severity: IncidentSeverity;
+    tenantId: string;
+    client: string;
+    sourceRef?: string;
+    incidentType: IncidentType;
+  }): Promise<Incident> {
+    const dto: CreateIncidentDto = {
+      title: payload.title,
+      description: payload.description,
+      severity: payload.severity,
+      status: IncidentStatus.OPEN,
+      client: payload.client,
+      detectedAt: new Date().toISOString(),
+    };
+
+    const incident = await this.incidentsRepository.create(dto, {
+      tenantId: payload.tenantId,
+      sourceType: 'API',
+      sourceRef: payload.sourceRef,
+      incidentType: payload.incidentType,
+    });
+
+    await this.incidentActivityRecorder.recordIncidentOpened(
+      incident.id,
+      undefined,
+      incident.severity,
+      incident.status,
+    );
+
+    return incident;
   }
 }

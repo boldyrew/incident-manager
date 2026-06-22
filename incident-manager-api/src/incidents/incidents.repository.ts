@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IncidentSeverity, IncidentStatus, Prisma } from '@prisma/client';
+import { IncidentSeverity, IncidentStatus, IncidentSourceType, IncidentType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
@@ -33,6 +33,9 @@ export const incidentSelect = {
   severity: true,
   status: true,
   client: true,
+  type: true,
+  sourceType: true,
+  sourceRef: true,
   assignee: { select: { id: true, fullName: true, email: true } },
   tenant: { select: tenantSelect },
   detectedAt: true,
@@ -53,7 +56,15 @@ type IncidentRecord = Prisma.IncidentGetPayload<{
 export class IncidentsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateIncidentDto, options?: { tenantId?: string }): Promise<Incident> {
+  async create(
+    dto: CreateIncidentDto,
+    options?: {
+      tenantId?: string;
+      sourceType?: IncidentSourceType;
+      sourceRef?: string;
+      incidentType?: IncidentType;
+    },
+  ): Promise<Incident> {
     const code = await this.getNewIncidentCode();
 
     const incident = await this.prisma.incident.create({
@@ -62,6 +73,9 @@ export class IncidentsRepository {
         code,
         detectedAt: new Date(dto.detectedAt),
         ...(options?.tenantId != null ? { tenantId: options.tenantId } : {}),
+        ...(options?.sourceType != null ? { sourceType: options.sourceType } : {}),
+        ...(options?.sourceRef != null ? { sourceRef: options.sourceRef } : {}),
+        ...(options?.incidentType != null ? { type: options.incidentType } : {}),
       },
       select: incidentSelect,
     });
@@ -143,6 +157,9 @@ export class IncidentsRepository {
       title: incident.title,
       description: incident.description,
       client: incident.client,
+      type: incident.type,
+      sourceType: incident.sourceType,
+      sourceRef: incident.sourceRef,
       severity: incident.severity,
       status: incident.status,
       assignedUser: incident.assignee

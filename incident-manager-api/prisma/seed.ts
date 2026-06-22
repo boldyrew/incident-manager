@@ -1,7 +1,9 @@
 import {
   PrismaClient,
   IncidentSeverity,
+  IncidentSourceType,
   IncidentStatus,
+  IncidentType,
   TicketPriority,
   TicketStatus,
 } from '@prisma/client';
@@ -40,7 +42,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.HIGH,
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
-      assignedTo: 'Sarah Chen',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-10T09:23:00Z'),
     },
     {
@@ -51,7 +54,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.OPEN,
       client: 'Meridian Healthcare',
-      assignedTo: 'James Walker',
+      type: IncidentType.MALWARE,
+      sourceType: IncidentSourceType.SIEM,
+      sourceRef: 'splunk:evt-9f3a2c1b',
       detectedAt: new Date('2024-01-11T11:45:00Z'),
     },
     {
@@ -62,7 +67,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.HIGH,
       status: IncidentStatus.IN_PROGRESS,
       client: 'GlobalTech Solutions',
-      assignedTo: 'Maria Rodriguez',
+      type: IncidentType.PHISHING,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-12T14:30:00Z'),
     },
     {
@@ -73,7 +79,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.OPEN,
       client: 'Nexus Retail Corp',
-      assignedTo: null,
+      type: IncidentType.DATA_BREACH,
+      sourceType: IncidentSourceType.MONITORING,
+      sourceRef: 'netflow:alert-7742',
       detectedAt: new Date('2024-01-13T08:15:00Z'),
     },
     {
@@ -84,7 +92,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
-      assignedTo: 'David Kim',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.SIEM,
+      sourceRef: 'crowdstrike:inc-88210',
       detectedAt: new Date('2024-01-14T16:55:00Z'),
     },
     {
@@ -95,7 +105,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.MEDIUM,
       status: IncidentStatus.RESOLVED,
       client: 'Meridian Healthcare',
-      assignedTo: 'Sarah Chen',
+      type: IncidentType.MALWARE,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-15T10:20:00Z'),
     },
     {
@@ -106,7 +117,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.LOW,
       status: IncidentStatus.CLOSED,
       client: 'GlobalTech Solutions',
-      assignedTo: 'James Walker',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.API,
+      sourceRef: 'waf:req-block-44129',
       detectedAt: new Date('2024-01-16T13:40:00Z'),
     },
   ];
@@ -128,6 +141,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
         status: incident.status,
         client: incident.client,
         tenantId,
+        type: incident.type,
+        sourceType: incident.sourceType,
+        sourceRef: incident.sourceRef,
         detectedAt: incident.detectedAt,
       },
     });

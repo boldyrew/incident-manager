@@ -3,6 +3,14 @@ import { UserBase } from 'src/users/entities/user';
 
 export type IncidentSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type IncidentStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+export type IncidentSourceType = 'MANUAL' | 'API' | 'SIEM' | 'MONITORING';
+export type IncidentType =
+  | 'UNAUTHORIZED_ACCESS'
+  | 'PHISHING'
+  | 'MALWARE'
+  | 'DATA_BREACH'
+  | 'SERVICE_OUTAGE'
+  | 'OTHER';
 
 export interface IncidentBase {
   id: string;
@@ -17,6 +25,9 @@ export interface IncidentBase {
 export interface Incident extends IncidentBase {
   description: string | null;
   client: string;
+  type: IncidentType | null;
+  sourceType: IncidentSourceType;
+  sourceRef: string | null;
   assignedUser: UserBase | null;
   tenant: TenantBase | null;
 }
