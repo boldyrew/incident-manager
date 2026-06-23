@@ -142,6 +142,7 @@ export class IncidentsService {
     title: string;
     description?: string;
     severity: IncidentSeverity;
+    status?: IncidentStatus;
     tenantId: string;
     client: string;
     sourceRef?: string;
@@ -151,7 +152,7 @@ export class IncidentsService {
       title: payload.title,
       description: payload.description,
       severity: payload.severity,
-      status: IncidentStatus.OPEN,
+      status: payload.status ?? IncidentStatus.OPEN,
       client: payload.client,
       detectedAt: new Date().toISOString(),
     };

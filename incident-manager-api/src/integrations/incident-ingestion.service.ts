@@ -33,6 +33,7 @@ export class IncidentIngestionService {
       title: dto.title,
       description: dto.description,
       severity: dto.severity,
+      status: dto.status,
       tenantId: dto.tenantId,
       client: tenant.name,
       sourceRef: dto.sourceRef,

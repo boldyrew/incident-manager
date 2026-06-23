@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { IncidentSeverity, IncidentType } from '@prisma/client';
+import { IncidentSeverity, IncidentStatus, IncidentType } from '@prisma/client';
 
 export class CreateExternalIncidentDto {
   @IsString()
@@ -23,4 +23,8 @@ export class CreateExternalIncidentDto {
   @IsEnum(IncidentType)
   @IsOptional()
   type?: IncidentType;
+
+  @IsEnum(IncidentStatus)
+  @IsOptional()
+  status?: IncidentStatus;
 }
