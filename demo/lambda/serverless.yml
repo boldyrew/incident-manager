@@ -1,0 +1,18 @@
+service: incident-simulator
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  environment:
+    BACKEND_URL: ${env:BACKEND_URL}
+    INTEGRATION_API_KEY: ${env:INTEGRATION_API_KEY}
+    TENANT_ID: ${env:TENANT_ID}
+    ANTHROPIC_API_KEY: ${env:ANTHROPIC_API_KEY}
+
+functions:
+  simulateIncident:
+    handler: dist/index.handler
+    timeout: 30
+    events:
+      - schedule: cron(* * * * ? *)
