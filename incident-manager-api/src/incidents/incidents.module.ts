@@ -26,5 +26,6 @@ import { IncidentActivityRecorder } from './incident-activities/incident-activit
     IncidentActivityRepository,
     IncidentActivityRecorder,
   ],
+  exports: [IncidentsService],
 })
 export class IncidentsModule {}

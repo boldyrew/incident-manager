@@ -6,6 +6,7 @@ RUN apk add --no-cache openssl libc6-compat
 
 COPY package*.json ./
 RUN npm ci
+RUN npm install -g ts-node
 
 COPY prisma ./prisma
 RUN npx prisma generate
@@ -22,6 +23,7 @@ RUN apk add --no-cache openssl libc6-compat
 
 COPY package*.json ./
 RUN npm ci --omit=dev
+RUN npm install -g ts-node
 
 COPY prisma ./prisma
 RUN npx prisma generate
