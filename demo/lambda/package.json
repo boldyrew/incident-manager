@@ -5,7 +5,10 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "deploy": "npx serverless deploy"
+    "deploy:dev": "npm run build && serverless deploy --stage dev",
+    "deploy:prod": "npm run build && serverless deploy --stage prod",
+    "logs:dev": "serverless logs -f simulateIncident --stage dev -t",
+    "logs:prod": "serverless logs -f simulateIncident --stage prod -t"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0"
