@@ -85,11 +85,9 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Subtle radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,hsl(var(--primary)/0.08),transparent)] pointer-events-none" />
 
       <div className="relative w-full max-w-4xl flex flex-col items-center gap-10">
-        {/* Header */}
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/20 rounded-lg">
@@ -111,7 +109,6 @@ export default function DemoPage() {
           </div>
         </div>
 
-        {/* Role cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
           {ROLES.map(({ role, label, tagline, description, icon: Icon, iconColor, iconBg, capabilities }) => {
             const isThisLoading = loadingRole === role;
@@ -178,7 +175,6 @@ export default function DemoPage() {
           </p>
         )}
 
-        {/* Footer */}
         <div className="flex flex-col items-center gap-2 text-center">
           <p className="text-xs text-muted-foreground">
             Demo data resets periodically. Changes made during the demo may not persist.
