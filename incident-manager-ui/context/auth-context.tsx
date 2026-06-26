@@ -10,6 +10,7 @@ export interface AuthUser {
   fullName: string;
   role: UserRole;
   tenantId: string | null;
+  isDemo?: boolean;
 }
 
 interface AuthContextValue {

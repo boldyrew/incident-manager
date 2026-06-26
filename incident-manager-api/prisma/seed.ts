@@ -6,7 +6,9 @@ import {
   IncidentType,
   TicketPriority,
   TicketStatus,
+  UserRole,
 } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -247,7 +249,51 @@ async function seedTickets(
   console.log(`Seeded ${tickets.length} tickets successfully`);
 }
 
+const DEMO_USER_EMAILS = [
+  'demo-admin@secureops.io',
+  'demo-analyst@secureops.io',
+  'demo-client@secureops.io',
+];
+
+async function seedDemoUsers() {
+  const demoTenant = await prisma.tenant.create({
+    data: { name: 'Demo Corp', alias: 'demo-corp' },
+  });
+
+  const passwordHash = await bcrypt.hash('demo-unused-x7k2m9', 10);
+
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'demo-admin@secureops.io',
+        fullName: 'Demo Admin',
+        role: UserRole.ADMIN,
+        tenantId: null,
+        passwordHash,
+      },
+      {
+        email: 'demo-analyst@secureops.io',
+        fullName: 'Demo Analyst',
+        role: UserRole.ANALYST,
+        tenantId: null,
+        passwordHash,
+      },
+      {
+        email: 'demo-client@secureops.io',
+        fullName: 'Demo Client',
+        role: UserRole.CLIENT_USER,
+        tenantId: demoTenant.id,
+        passwordHash,
+      },
+    ],
+  });
+
+  console.log('Seeded 1 demo tenant and 3 demo users successfully');
+}
+
 async function main() {
+  await prisma.user.deleteMany({ where: { email: { in: DEMO_USER_EMAILS } } });
+
   await prisma.ticket.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.tenant.deleteMany();
@@ -262,6 +308,7 @@ async function main() {
   );
 
   await seedTickets(incidentMap);
+  await seedDemoUsers();
 }
 
 main()
