@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
@@ -7,12 +7,19 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthenticatedUser } from './types/authenticated-user.type';
 
+const DEMO_EMAILS: Record<UserRole, string> = {
+  ADMIN: 'demo-admin@secureops.io',
+  ANALYST: 'demo-analyst@secureops.io',
+  CLIENT_USER: 'demo-client@secureops.io',
+};
+
 type AuthUserResponse = {
   id: string;
   email: string;
   fullName: string;
   role: UserRole;
   tenantId: string | null;
+  isDemo?: boolean;
 };
 
 @Injectable()
@@ -74,6 +81,18 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  async loginAsDemo(role: UserRole) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: DEMO_EMAILS[role] },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Demo user for role ${role} not found. Run db:seed first.`);
+    }
+
+    return this.buildAuthResponse(user, { isDemo: true });
+  }
+
   async validateToken(token: string): Promise<AuthenticatedUser> {
     try {
       return await this.jwtService.verifyAsync<AuthenticatedUser>(token);
@@ -82,12 +101,13 @@ export class AuthService {
     }
   }
 
-  private async buildAuthResponse(user: User) {
+  private async buildAuthResponse(user: User, options?: { isDemo?: boolean }) {
     const payload: AuthenticatedUser = {
       sub: user.id,
       email: user.email,
       role: user.role,
       tenantId: user.tenantId,
+      ...(options?.isDemo ? { isDemo: true } : {}),
     };
 
     const expiresInSeconds = Number(process.env.JWT_EXPIRES_IN_SECONDS || 86400);
@@ -97,17 +117,18 @@ export class AuthService {
 
     return {
       accessToken,
-      user: this.toAuthUser(user),
+      user: this.toAuthUser(user, options),
     };
   }
 
-  private toAuthUser(user: User): AuthUserResponse {
+  private toAuthUser(user: User, options?: { isDemo?: boolean }): AuthUserResponse {
     return {
       id: user.id,
       email: user.email,
       fullName: user.fullName,
       role: user.role,
       tenantId: user.tenantId,
+      ...(options?.isDemo ? { isDemo: true } : {}),
     };
   }
 }
