@@ -9,27 +9,30 @@ datasource db {
 }
 
 model Incident {
-  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code           String           @unique
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code           String              @unique
   title          String
   description    String?
   severity       IncidentSeverity
   status         IncidentStatus
   client         String
+  type           IncidentType?
+  sourceType     IncidentSourceType  @default(MANUAL)
+  sourceRef      String?
 
-  assignedUserId String?          @db.Uuid
-  assignee       User?            @relation("IncidentAssignee", fields: [assignedUserId], references: [id])
+  assignedUserId String?             @db.Uuid
+  assignee       User?               @relation("IncidentAssignee", fields: [assignedUserId], references: [id])
 
   detectedAt     DateTime
   resolvedAt     DateTime?
   tickets        Ticket[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
-  tenantId       String?          @db.Uuid
-  tenant         Tenant?          @relation(fields: [tenantId], references: [id])
+  tenantId       String?             @db.Uuid
+  tenant         Tenant?             @relation(fields: [tenantId], references: [id])
 
-  activities     IncidentActivity[] @relation("IncidentActivityIncident")
+  activities     IncidentActivity[]  @relation("IncidentActivityIncident")
 
   @@map("incidents")
 }
@@ -114,6 +117,22 @@ enum TicketActivityType {
   COMMENT_ADDED
   DESCRIPTION_UPDATED
   TITLE_UPDATED
+}
+
+enum IncidentSourceType {
+  MANUAL
+  API
+  SIEM
+  MONITORING
+}
+
+enum IncidentType {
+  UNAUTHORIZED_ACCESS
+  PHISHING
+  MALWARE
+  DATA_BREACH
+  SERVICE_OUTAGE
+  OTHER
 }
 
 enum IncidentSeverity {

@@ -1,10 +1,14 @@
 import {
   PrismaClient,
   IncidentSeverity,
+  IncidentSourceType,
   IncidentStatus,
+  IncidentType,
   TicketPriority,
   TicketStatus,
+  UserRole,
 } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -40,7 +44,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.HIGH,
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
-      assignedTo: 'Sarah Chen',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-10T09:23:00Z'),
     },
     {
@@ -51,7 +56,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.OPEN,
       client: 'Meridian Healthcare',
-      assignedTo: 'James Walker',
+      type: IncidentType.MALWARE,
+      sourceType: IncidentSourceType.SIEM,
+      sourceRef: 'splunk:evt-9f3a2c1b',
       detectedAt: new Date('2024-01-11T11:45:00Z'),
     },
     {
@@ -62,7 +69,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.HIGH,
       status: IncidentStatus.IN_PROGRESS,
       client: 'GlobalTech Solutions',
-      assignedTo: 'Maria Rodriguez',
+      type: IncidentType.PHISHING,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-12T14:30:00Z'),
     },
     {
@@ -73,7 +81,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.OPEN,
       client: 'Nexus Retail Corp',
-      assignedTo: null,
+      type: IncidentType.DATA_BREACH,
+      sourceType: IncidentSourceType.MONITORING,
+      sourceRef: 'netflow:alert-7742',
       detectedAt: new Date('2024-01-13T08:15:00Z'),
     },
     {
@@ -84,7 +94,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.CRITICAL,
       status: IncidentStatus.IN_PROGRESS,
       client: 'Apex Financial Group',
-      assignedTo: 'David Kim',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.SIEM,
+      sourceRef: 'crowdstrike:inc-88210',
       detectedAt: new Date('2024-01-14T16:55:00Z'),
     },
     {
@@ -95,7 +107,8 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.MEDIUM,
       status: IncidentStatus.RESOLVED,
       client: 'Meridian Healthcare',
-      assignedTo: 'Sarah Chen',
+      type: IncidentType.MALWARE,
+      sourceType: IncidentSourceType.MANUAL,
       detectedAt: new Date('2024-01-15T10:20:00Z'),
     },
     {
@@ -106,7 +119,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
       severity: IncidentSeverity.LOW,
       status: IncidentStatus.CLOSED,
       client: 'GlobalTech Solutions',
-      assignedTo: 'James Walker',
+      type: IncidentType.UNAUTHORIZED_ACCESS,
+      sourceType: IncidentSourceType.API,
+      sourceRef: 'waf:req-block-44129',
       detectedAt: new Date('2024-01-16T13:40:00Z'),
     },
   ];
@@ -128,6 +143,9 @@ async function seedIncidents(tenantIdByClient: Map<string, string>) {
         status: incident.status,
         client: incident.client,
         tenantId,
+        type: incident.type,
+        sourceType: incident.sourceType,
+        sourceRef: incident.sourceRef,
         detectedAt: incident.detectedAt,
       },
     });
@@ -231,7 +249,51 @@ async function seedTickets(
   console.log(`Seeded ${tickets.length} tickets successfully`);
 }
 
+const DEMO_USER_EMAILS = [
+  'demo-admin@secureops.io',
+  'demo-analyst@secureops.io',
+  'demo-client@secureops.io',
+];
+
+async function seedDemoUsers() {
+  const demoTenant = await prisma.tenant.create({
+    data: { name: 'Demo Corp', alias: 'demo-corp' },
+  });
+
+  const passwordHash = await bcrypt.hash('demo-unused-x7k2m9', 10);
+
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'demo-admin@secureops.io',
+        fullName: 'Demo Admin',
+        role: UserRole.ADMIN,
+        tenantId: null,
+        passwordHash,
+      },
+      {
+        email: 'demo-analyst@secureops.io',
+        fullName: 'Demo Analyst',
+        role: UserRole.ANALYST,
+        tenantId: null,
+        passwordHash,
+      },
+      {
+        email: 'demo-client@secureops.io',
+        fullName: 'Demo Client',
+        role: UserRole.CLIENT_USER,
+        tenantId: demoTenant.id,
+        passwordHash,
+      },
+    ],
+  });
+
+  console.log('Seeded 1 demo tenant and 3 demo users successfully');
+}
+
 async function main() {
+  await prisma.user.deleteMany({ where: { email: { in: DEMO_USER_EMAILS } } });
+
   await prisma.ticket.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.tenant.deleteMany();
@@ -246,6 +308,7 @@ async function main() {
   );
 
   await seedTickets(incidentMap);
+  await seedDemoUsers();
 }
 
 main()

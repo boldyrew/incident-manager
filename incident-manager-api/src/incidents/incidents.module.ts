@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IncidentsController } from './incidents.controller';
 import { IncidentsService } from './incidents.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { IncidentsRepository } from './incidents.repository';
 import { AuthModule } from '../auth/auth.module';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,7 +17,6 @@ import { IncidentActivityRecorder } from './incident-activities/incident-activit
   providers: [
     IncidentsService,
     IncidentsRepository,
-    PrismaService,
     JwtAuthGuard,
     RolesGuard,
     UsersRepository,
@@ -26,5 +24,6 @@ import { IncidentActivityRecorder } from './incident-activities/incident-activit
     IncidentActivityRepository,
     IncidentActivityRecorder,
   ],
+  exports: [IncidentsService],
 })
 export class IncidentsModule {}

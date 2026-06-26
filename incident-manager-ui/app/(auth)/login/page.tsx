@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/context/auth-context';
 import { loginRequest } from '@/lib/auth';
+
+const DEMO_ENABLED = process.env.NEXT_PUBLIC_DEMO_MODE_ENABLED === 'true';
 
 export default function LoginPage() {
   const { login, token, isLoading } = useAuth();
@@ -99,6 +102,15 @@ export default function LoginPage() {
             </Button>
           </form>
         </div>
+
+        {DEMO_ENABLED && (
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Want to explore first?{' '}
+            <Link href="/demo" className="text-primary hover:underline">
+              Try the live demo
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

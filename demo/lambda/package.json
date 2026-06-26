@@ -1,0 +1,23 @@
+{
+  "name": "incident-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "deploy:dev": "npm run build && serverless deploy --stage dev",
+    "deploy:prod": "npm run build && serverless deploy --stage prod",
+    "logs:dev": "serverless logs -f simulateIncident --stage dev -t",
+    "logs:prod": "serverless logs -f simulateIncident --stage prod -t"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^20.0.0",
+    "serverless": "^3.40.0",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "typescript": "^5.5.0"
+  }
+}
